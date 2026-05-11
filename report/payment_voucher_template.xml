@@ -1,109 +1,387 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="report_vendor_payment_voucher">
+    <template id="vendor_payment_voucher">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-set="lang" t-value="o.partner_id.lang or o.company_id.partner_id.lang"/>
                 <t t-set="o" t-value="o.with_context(lang=lang)"/>
                 <t t-set="company" t-value="o.company_id.sudo()"/>
-                <t t-set="layout_document_title" t-value="'Vendor Payment Voucher'"/>
-                <t t-call="tha_payment_voucher_report.payment_voucher_layout">
+                <!-- <t t-set="layout_document_title" t-value="'Vendor Payment Voucher'"/> -->
+                <t t-call="web.external_layout">
+                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                    <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
+
+                    <style>
+                        @page {
+                            size: A4 portrait;
+                        }
+
+                        .page {
+                            font-size: 14px;
+                        }
+
+                        .compact-table td,
+                        .compact-table th {
+                            line-height: 1.5 !important;
+                            vertical-align: middle;
+                            padding: 4px 5px !important;
+                        }
+
+                        .compact-table tr {
+                            height: auto !important;
+                        }
+                    </style>
+
                     <div class="page">
-                        <div class="tpvr-title">Vendor Payment Voucher</div>
 
-                        <div class="row tpvr-box">
-                            <div class="col-4">
-                                <div class="tpvr-label">Voucher No.</div>
-                                <div class="tpvr-value" t-field="o.name">PAY/0001</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="tpvr-label">Payment Date</div>
-                                <div class="tpvr-value" t-field="o.date">2026-01-01</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="tpvr-label">Journal</div>
-                                <div class="tpvr-value" t-field="o.journal_id.name">Bank</div>
-                            </div>
+                        <!-- TITLE -->
+                        <div class="text-center mb-2">
+                            <h4 style="font-weight: bold; margin: 0;">Payment Voucher</h4>
                         </div>
 
-                        <div class="row tpvr-box">
-                            <div class="col-7">
-                                <div class="tpvr-label">Paid To</div>
-                                <div class="tpvr-value" t-field="o.partner_id">Vendor</div>
-                                <div t-if="o.partner_id.contact_address" class="mt-1" t-out="o.partner_id.contact_address"/>
-                            </div>
-                            <div class="col-5">
-                                <div class="tpvr-label">Amount</div>
-                                <div class="tpvr-value">
-                                    <span t-field="o.amount"
-                                        t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">0.00</span>
+                        <!-- HEADER -->
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Payment Voucher</div>
+                                    <div class="col-7"><span t-field="o.name"/></div>
                                 </div>
-                                <div class="tpvr-label mt-2">Amount In Words</div>
-                                <div t-if="o.currency_id" t-out="o.currency_id.amount_to_text(o.amount)"/>
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Supplier</div>
+                                    <div class="col-7"><span t-field="o.partner_id"/></div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Payment Amount</div>
+                                    <div class="col-7">
+                                        <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Currency</div>
+                                    <div class="col-7"><span t-field="o.currency_id"/></div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.date">
+                                    <div class="col-5 fw-bold">Payment Date</div>
+                                    <div class="col-7">
+                                        <span t-field="o.date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.payment_method_id">
+                                    <div class="col-5 fw-bold">Payment Method</div>
+                                    <div class="col-7"><span t-field="o.payment_method_id.name"/></div>
+                                </div>
+                                <div class="row mb-1" t-if="o.memo">
+                                    <div class="col-5 fw-bold">Memo</div>
+                                    <div class="col-7"><span t-field="o.memo"/></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row tpvr-box">
-                            <div class="col-4">
-                                <div class="tpvr-label">Payment Method</div>
-                                <div t-if="o.payment_method_line_id" t-field="o.payment_method_line_id.name">Manual</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="tpvr-label">Payment Reference</div>
-                                <div t-out="o.payment_reference or ''"/>
-                            </div>
-                            <div class="col-4">
-                                <div class="tpvr-label">Journal Entry</div>
-                                <div t-if="o.move_id" t-field="o.move_id.name">MISC/0001</div>
-                            </div>
-                            <div class="col-12 mt-2" t-if="o.memo">
-                                <div class="tpvr-label">Memo</div>
-                                <div t-field="o.memo"/>
-                            </div>
-                        </div>
+                        <!-- TABLE -->
+                        <table name="invoices" t-if="values.get('display_invoices')" class="table table-borderless compact-table">
 
-                        <t t-set="bills" t-value="o.reconciled_bill_ids"/>
-                        <table class="tpvr-table">
+                            <!-- FIX 1: safe sort (Odoo-safe style) -->
+                            <t t-set="invoices" t-value="(o.reconciled_invoice_ids or o.reconciled_bill_ids)                             .sorted(key=lambda i: i.invoice_date or i.date)"/>
+
+                            <t t-set="otherCurrency" t-value="any(inv.currency_id != o.currency_id for inv in invoices)"/>
+
                             <thead>
                                 <tr>
-                                    <th>Bill Date</th>
+                                    <th>No</th>
+                                    <th>Invoice Date</th>
                                     <th>Bill Number</th>
                                     <th>Reference</th>
-                                    <th class="text-end">Bill Amount</th>
-                                    <th class="text-end">Residual</th>
+                                    <th t-if="otherCurrency" class="text-end">
+                                        Paid Amount (<span t-field="o.currency_id.name"/>)
+                                    </th>
+                                    <th class="text-end">Applied Amount</th>
                                 </tr>
                             </thead>
+
                             <tbody>
-                                <tr t-if="not bills">
-                                    <td colspan="5" class="text-center">No reconciled vendor bill found for this payment.</td>
-                                </tr>
-                                <tr t-foreach="bills" t-as="bill">
-                                    <td><span t-field="bill.invoice_date"/></td>
-                                    <td><span t-field="bill.name"/></td>
-                                    <td><span t-out="bill.ref or ''"/></td>
+                                <t t-set="i" t-value="0"/>
+                                <t t-set="total_applied" t-value="0.0"/>
+
+                                <t t-foreach="invoices" t-as="inv">
+
+                                    <t t-if="inv.move_type != 'entry'">
+
+                                        <!-- FIX 2: correct signed logic (better than only invoice type) -->
+                                        <t t-set="signed_total" t-value="inv.amount_total if inv.move_type == 'in_invoice' else -inv.amount_total"/>
+
+                                        <t t-set="i" t-value="i + 1"/>
+                                        <t t-set="total_applied" t-value="total_applied + signed_total"/>
+
+                                        <tr>
+                                            <td><span t-esc="i"/></td>
+
+                                            <td>
+                                                <span t-field="inv.invoice_date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                            </td>
+
+                                            <td><span t-field="inv.name"/></td>
+
+                                            <td>
+                                                <span t-if="inv.vendor_ref" t-field="inv.vendor_ref"/>
+                                                <span t-elif="inv.ref" t-field="inv.ref"/>
+                                            </td>
+
+                                            <!-- FIX 3: remove undefined variable -->
+                                            <td t-if="otherCurrency" class="text-end">
+                                                <span t-out="signed_total" t-options="{'widget': 'monetary',                                                       'display_currency': o.currency_id}"/>
+                                            </td>
+
+                                            <td class="text-end">
+                                                <span t-out="signed_total" t-options="{'widget': 'monetary',                                                       'display_currency': inv.currency_id}"/>
+                                            </td>
+                                        </tr>
+
+                                    </t>
+                                </t>
+
+                                <!-- FIX 4: correct colspan logic -->
+                                <tr>
+                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
                                     <td class="text-end">
-                                        <span t-field="bill.amount_total"
-                                            t-options="{'widget': 'monetary', 'display_currency': bill.currency_id}"/>
+                                        <strong>Due Amount</strong>
                                     </td>
                                     <td class="text-end">
-                                        <span t-field="bill.amount_residual"
-                                            t-options="{'widget': 'monetary', 'display_currency': bill.currency_id}"/>
+                                        <strong>
+                                            <span t-out="abs(o.amount - total_applied)" t-options="{'widget': 'monetary',                                                   'display_currency': o.currency_id}"/>
+                                        </strong>
                                     </td>
                                 </tr>
+
                             </tbody>
                         </table>
 
-                        <div class="row tpvr-signature-row">
-                            <div class="col-4">
-                                <div class="tpvr-signature">Prepared By</div>
+                        <!-- SIGNATURE -->
+                        <div class="mt-4" style="page-break-inside: avoid;">
+
+                            <div class="row text-center">
+                                <div class="col-4"><strong>Approved By</strong></div>
+                                <div class="col-4"><strong>Received By</strong></div>
+                                <div class="col-4"><strong>Paid By</strong></div>
                             </div>
-                            <div class="col-4">
-                                <div class="tpvr-signature">Checked By</div>
+
+                            <div class="row mt-3">
+                                <t t-foreach="[1,2,3]" t-as="x">
+                                    <div class="col-4 px-3">
+                                        <div style="border-bottom: 1px dotted black; height: 12px;"/>
+                                    </div>
+                                </t>
                             </div>
-                            <div class="col-4">
-                                <div class="tpvr-signature">Approved By</div>
+
+                            <div class="row mt-3">
+                                <t t-foreach="[1,2,3]" t-as="x">
+                                    <div class="col-4 px-3">
+                                        <div style="border-bottom: 1px dotted black; height: 12px;"/>
+                                    </div>
+                                </t>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="vendor_payment_voucher_a5">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang or o.company_id.partner_id.lang"/>
+                <t t-set="o" t-value="o.with_context(lang=lang)"/>
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+                <!-- <t t-set="layout_document_title" t-value="'Vendor Payment Voucher'"/> -->
+                <t t-call="web.external_layout">
+                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                    <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
+
+                    <style>
+                        @page {
+                            size: A5 portrait;
+                        }
+
+                        .page {
+                            font-size: 12px;
+                        }
+
+                        .compact-table td,
+                        .compact-table th {
+                            line-height: 1.25 !important;
+                            vertical-align: middle;
+                            padding: 4px 5px !important;
+                        }
+
+                        .compact-table tr {
+                            height: auto !important;
+                        }
+                    </style>
+
+                    <div class="page">
+
+                        <!-- TITLE -->
+                        <div class="text-center mb-2">
+                            <h4 style="font-weight: bold; margin: 0;">Payment Voucher</h4>
+                        </div>
+
+                        <!-- HEADER -->
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Payment Voucher</div>
+                                    <div class="col-7"><span t-field="o.name"/></div>
+                                </div>
+
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Supplier</div>
+                                    <div class="col-7"><span t-field="o.partner_id"/></div>
+                                </div>
+
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Payment Amount</div>
+                                    <div class="col-7">
+                                        <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Currency</div>
+                                    <div class="col-7"><span t-field="o.currency_id"/></div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.date">
+                                    <div class="col-5 fw-bold">Payment Date</div>
+                                    <div class="col-7">
+                                        <span t-field="o.date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.payment_method_id">
+                                    <div class="col-5 fw-bold">Payment Method</div>
+                                    <div class="col-7"><span t-field="o.payment_method_id.name"/></div>
+                                </div>
+                                <div class="row mb-1" t-if="o.memo">
+                                    <div class="col-5 fw-bold">Memo</div>
+                                    <div class="col-7"><span t-field="o.memo"/></div>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- TABLE -->
+                        <table name="invoices" t-if="values.get('display_invoices')" class="table table-borderless compact-table">
+
+                            <!-- FIX 1: safe sort (Odoo-safe style) -->
+                            <t t-set="invoices" t-value="(o.reconciled_invoice_ids or o.reconciled_bill_ids).sorted(key=lambda i: i.invoice_date or i.date)"/>
+
+                            <t t-set="otherCurrency" t-value="any(inv.currency_id != o.currency_id for inv in invoices)"/>
+
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Invoice Date</th>
+                                    <th>Bill Number</th>
+                                    <th>Reference</th>
+                                    <th t-if="otherCurrency" class="text-end">
+                                        Paid Amount (<span t-field="o.currency_id.name"/>)
+                                    </th>
+                                    <th class="text-end">Applied Amount</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <t t-set="i" t-value="0"/>
+                                <t t-set="total_applied" t-value="0.0"/>
+
+                                <t t-foreach="invoices" t-as="inv">
+
+                                    <t t-if="inv.move_type != 'entry'">
+
+                                        <!-- FIX 2: correct signed logic (better than only invoice type) -->
+                                        <t t-set="signed_total" t-value="inv.amount_total if inv.move_type == 'in_invoice' else -inv.amount_total"/>
+
+                                        <t t-set="i" t-value="i + 1"/>
+                                        <t t-set="total_applied" t-value="total_applied + signed_total"/>
+
+                                        <tr>
+                                            <td><span t-esc="i"/></td>
+
+                                            <td>
+                                                <span t-field="inv.invoice_date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                            </td>
+
+                                            <td><span t-field="inv.name"/></td>
+
+                                            <td>
+                                                <span t-if="inv.vendor_ref" t-field="inv.vendor_ref"/>
+                                                <span t-elif="inv.ref" t-field="inv.ref"/>
+                                            </td>
+
+                                            <!-- FIX 3: remove undefined variable -->
+                                            <td t-if="otherCurrency" class="text-end">
+                                                <span t-out="signed_total" t-options="{'widget': 'monetary',                                                       'display_currency': o.currency_id}"/>
+                                            </td>
+
+                                            <td class="text-end">
+                                                <span t-out="signed_total" t-options="{'widget': 'monetary',                                                       'display_currency': inv.currency_id}"/>
+                                            </td>
+                                        </tr>
+
+                                    </t>
+                                </t>
+
+                                <!-- FIX 4: correct colspan logic -->
+                                <tr>
+                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
+                                    <td class="text-end">
+                                        <strong>Due Amount</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong>
+                                            <span t-out="abs(o.amount - total_applied)" t-options="{'widget': 'monetary',                                                   'display_currency': o.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                        <!-- SIGNATURE -->
+                        <div class="mt-4" style="page-break-inside: avoid;">
+
+                            <div class="row text-center">
+                                <div class="col-4"><strong>Approved By</strong></div>
+                                <div class="col-4"><strong>Received By</strong></div>
+                                <div class="col-4"><strong>Paid By</strong></div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <t t-foreach="[1,2,3]" t-as="x">
+                                    <div class="col-4 px-3">
+                                        <div style="border-bottom: 1px dotted black; height: 12px;"/>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <div class="row mt-3">
+                                <t t-foreach="[1,2,3]" t-as="x">
+                                    <div class="col-4 px-3">
+                                        <div style="border-bottom: 1px dotted black; height: 12px;"/>
+                                    </div>
+                                </t>
+                            </div>
+
+                        </div>
+
                     </div>
                 </t>
             </t>

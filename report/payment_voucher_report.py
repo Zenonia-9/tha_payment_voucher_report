@@ -18,10 +18,21 @@ def _get_payment_voucher_report_values(report_model, docids, data=None):
 
 
 class VendorPaymentVoucherReport(models.AbstractModel):
-    _name = "report.tha_payment_voucher_report.report_vendor_payment_voucher"
+    _name = "report.tha_payment_voucher_report.vendor_payment_voucher"
     _description = "Vendor Payment Voucher Report"
-    # _table = "tpvr_report_vendor_payment"
-    # _auto = False
+    _table = "tpvr_report_vendor_payment"
+    _auto = False
+
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        return _get_payment_voucher_report_values(self, docids, data=data)
+
+
+class VendorPaymentVoucherA5Report(models.AbstractModel):
+    _name = "report.tha_payment_voucher_report.vendor_payment_voucher_a5"
+    _description = "Vendor Payment Voucher Report A5"
+    _table = "tpvr_report_vendor_payment_a5"
+    _auto = False
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -29,10 +40,21 @@ class VendorPaymentVoucherReport(models.AbstractModel):
 
 
 class CustomerReceiptVoucherReport(models.AbstractModel):
-    _name = "report.tha_payment_voucher_report.report_customer_receipt_voucher"
+    _name = "report.tha_payment_voucher_report.customer_receipt_voucher"
     _description = "Customer Receipt Voucher Report"
-    # _table = "tpvr_report_customer_receipt"
-    # _auto = False
+    _table = "tpvr_report_customer_receipt"
+    _auto = False
+
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        return _get_payment_voucher_report_values(self, docids, data=data)
+
+
+class CustomerReceiptVoucherA5Report(models.AbstractModel):
+    _name = "report.tha_payment_voucher_report.customer_receipt_voucher_a5"
+    _description = "Customer Receipt Voucher Report A5"
+    _table = "tpvr_report_customer_receipt_a5"
+    _auto = False
 
     @api.model
     def _get_report_values(self, docids, data=None):

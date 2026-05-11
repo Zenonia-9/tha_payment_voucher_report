@@ -18,7 +18,7 @@ class AccountPayment(models.Model):
             "context": {
                 "default_payment_id": self.id,
                 'active_ids': self.ids,
-                'active_model': 'account.move',
+                'active_model': 'account.payment',
             },
         }
 

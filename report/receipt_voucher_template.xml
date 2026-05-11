@@ -1,115 +1,387 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="customer_receipt_voucher_document">
-        <t t-set="company" t-value="o.company_id.sudo()"/>
-        <t t-set="layout_document_title" t-value="'Customer Receipt Voucher'"/>
-        <t t-call="tha_payment_voucher_report.payment_voucher_layout">
-            <div class="page">
-                <div class="tpvr-title">Customer Receipt Voucher</div>
-
-                <div class="row tpvr-box">
-                    <div class="col-4">
-                        <div class="tpvr-label">Receipt No.</div>
-                        <div class="tpvr-value" t-field="o.name">PAY/0001</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="tpvr-label">Receipt Date</div>
-                        <div class="tpvr-value" t-field="o.date">2026-01-01</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="tpvr-label">Journal</div>
-                        <div class="tpvr-value" t-field="o.journal_id.name">Bank</div>
-                    </div>
-                </div>
-
-                <div class="row tpvr-box">
-                    <div class="col-7">
-                        <div class="tpvr-label">Received From</div>
-                        <div class="tpvr-value" t-field="o.partner_id">Customer</div>
-                        <div t-if="o.partner_id.contact_address" class="mt-1" t-out="o.partner_id.contact_address"/>
-                    </div>
-                    <div class="col-5">
-                        <div class="tpvr-label">Amount</div>
-                        <div class="tpvr-value">
-                            <span t-field="o.amount"
-                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">0.00</span>
-                        </div>
-                        <div class="tpvr-label mt-2">Amount In Words</div>
-                        <div t-if="o.currency_id" t-out="o.currency_id.amount_to_text(o.amount)"/>
-                    </div>
-                </div>
-
-                <div class="row tpvr-box">
-                    <div class="col-4">
-                        <div class="tpvr-label">Payment Method</div>
-                        <div t-if="o.payment_method_line_id" t-field="o.payment_method_line_id.name">Manual</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="tpvr-label">Payment Reference</div>
-                        <div t-out="o.payment_reference or ''"/>
-                    </div>
-                    <div class="col-4">
-                        <div class="tpvr-label">Journal Entry</div>
-                        <div t-if="o.move_id" t-field="o.move_id.name">MISC/0001</div>
-                    </div>
-                    <div class="col-12 mt-2" t-if="o.memo">
-                        <div class="tpvr-label">Memo</div>
-                        <div t-field="o.memo"/>
-                    </div>
-                </div>
-
-                <t t-set="invoices" t-value="o.reconciled_invoice_ids"/>
-                <table class="tpvr-table">
-                    <thead>
-                        <tr>
-                            <th>Invoice Date</th>
-                            <th>Invoice Number</th>
-                            <th>Reference</th>
-                            <th class="text-end">Invoice Amount</th>
-                            <th class="text-end">Residual</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr t-if="not invoices">
-                            <td colspan="5" class="text-center">No reconciled customer invoice found for this payment.</td>
-                        </tr>
-                        <tr t-foreach="invoices" t-as="invoice">
-                            <td><span t-field="invoice.invoice_date"/></td>
-                            <td><span t-field="invoice.name"/></td>
-                            <td><span t-out="invoice.ref or ''"/></td>
-                            <td class="text-end">
-                                <span t-field="invoice.amount_total"
-                                      t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
-                            </td>
-                            <td class="text-end">
-                                <span t-field="invoice.amount_residual"
-                                      t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="row tpvr-signature-row">
-                    <div class="col-4">
-                        <div class="tpvr-signature">Prepared By</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="tpvr-signature">Checked By</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="tpvr-signature">Approved By</div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
-    <template id="report_customer_receipt_voucher">
+    <template id="customer_receipt_voucher">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-set="lang" t-value="o.partner_id.lang or o.company_id.partner_id.lang"/>
                 <t t-set="o" t-value="o.with_context(lang=lang)"/>
-                <t t-call="tha_payment_voucher_report.customer_receipt_voucher_document" t-lang="lang"/>
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+                <t t-set="layout_document_title" t-value="'Customer Receipt Voucher'"/>
+                <t t-call="tha_payment_voucher_report.payment_voucher_layout">
+                    <div class="page">
+                        <div class="tpvr-title">Customer Receipt Voucher</div>
+
+                        <div class="row tpvr-box">
+                            <div class="col-4">
+                                <div class="tpvr-label">Receipt No.</div>
+                                <div class="tpvr-value" t-field="o.name">PAY/0001</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="tpvr-label">Receipt Date</div>
+                                <div class="tpvr-value" t-field="o.date">2026-01-01</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="tpvr-label">Journal</div>
+                                <div class="tpvr-value" t-field="o.journal_id.name">Bank</div>
+                            </div>
+                        </div>
+
+                        <div class="row tpvr-box">
+                            <div class="col-7">
+                                <div class="tpvr-label">Received From</div>
+                                <div class="tpvr-value" t-field="o.partner_id">Customer</div>
+                                <div t-if="o.partner_id.contact_address" class="mt-1" t-out="o.partner_id.contact_address"/>
+                            </div>
+                            <div class="col-5">
+                                <div class="tpvr-label">Amount</div>
+                                <div class="tpvr-value">
+                                    <span t-field="o.amount"
+                                        t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">0.00</span>
+                                </div>
+                                <div class="tpvr-label mt-2">Amount In Words</div>
+                                <div t-if="o.currency_id" t-out="o.currency_id.amount_to_text(o.amount)"/>
+                            </div>
+                        </div>
+
+                        <div class="row tpvr-box">
+                            <div class="col-4">
+                                <div class="tpvr-label">Payment Method</div>
+                                <div t-if="o.payment_method_line_id" t-field="o.payment_method_line_id.name">Manual</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="tpvr-label">Payment Reference</div>
+                                <div t-out="o.payment_reference or ''"/>
+                            </div>
+                            <div class="col-4">
+                                <div class="tpvr-label">Journal Entry</div>
+                                <div t-if="o.move_id" t-field="o.move_id.name">MISC/0001</div>
+                            </div>
+                            <div class="col-12 mt-2" t-if="o.memo">
+                                <div class="tpvr-label">Memo</div>
+                                <div t-field="o.memo"/>
+                            </div>
+                        </div>
+
+                        <t t-set="invoices" t-value="o.reconciled_invoice_ids"/>
+                        <table class="tpvr-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice Date</th>
+                                    <th>Invoice Number</th>
+                                    <th>Reference</th>
+                                    <th class="text-end">Invoice Amount</th>
+                                    <th class="text-end">Residual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-if="not invoices">
+                                    <td colspan="5" class="text-center">No reconciled customer invoice found for this payment.</td>
+                                </tr>
+                                <tr t-foreach="invoices" t-as="invoice">
+                                    <td><span t-field="invoice.invoice_date"/></td>
+                                    <td><span t-field="invoice.name"/></td>
+                                    <td><span t-out="invoice.ref or ''"/></td>
+                                    <td class="text-end">
+                                        <span t-field="invoice.amount_total"
+                                            t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-field="invoice.amount_residual"
+                                            t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row tpvr-signature-row">
+                            <div class="col-4">
+                                <div class="tpvr-signature">Prepared By</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="tpvr-signature">Checked By</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="tpvr-signature">Approved By</div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="customer_receipt_voucher_a5">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang or o.company_id.partner_id.lang"/>
+                <t t-set="o" t-value="o.with_context(lang=lang)"/>
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+                <!-- <t t-set="layout_document_title" t-value="'Customer Receipt Voucher'"/> -->
+                <t t-call="web.external_layout">
+                    <t t-set="o" t-value="o.with_context(lang=lang)"/>
+                    <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
+                    <style>
+                        @page {
+                            size: A5 portrait;
+                        }
+
+                        .page {
+                            font-size: 12px;
+                        }
+
+                        .compact-table td,
+                        .compact-table th {
+                            line-height: 1.25 !important;
+                            vertical-align: middle;
+                            padding: 4px 5px !important;
+                        }
+
+                        .compact-table tr {
+                            height: auto !important;
+                        }
+                    </style>
+                    <div class="page" style="font-size: 12px;">
+
+                        <!-- HEADER -->
+                        <div class="text-center mb-2">
+                            <h4 style="font-weight: bold; margin: 0;">Receipt Voucher</h4>
+                        </div>
+
+                        <!-- TOP INFO -->
+                        <div class="row mb-2">
+
+                            <!-- LEFT -->
+                            <div class="col-6">
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Receipt Voucher</div>
+                                    <div class="col-7">
+                                        <span t-field="o.name"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Customer</div>
+                                    <div class="col-7">
+                                        <span t-field="o.partner_id"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Receipt Amount</div>
+                                    <div class="col-7">
+                                        <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Journal</div>
+                                    <div class="col-7">
+                                        <span t-field="o.journal_id"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT -->
+                            <div class="col-6">
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Currency</div>
+                                    <div class="col-7">
+                                        <span t-field="o.currency_id"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.date">
+                                    <div class="col-5 fw-bold">Payment Date</div>
+                                    <div class="col-7">
+                                        <span t-field="o.date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.payment_method_id">
+                                    <div class="col-5 fw-bold">Payment Method</div>
+                                    <div class="col-7">
+                                        <span t-field="o.payment_method_id.name"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.memo">
+                                    <div class="col-5 fw-bold">Memo</div>
+                                    <div class="col-7">
+                                        <span t-field="o.memo"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- INVOICE TABLE -->
+                        <table name="invoices" t-if="values.get('display_invoices')" class="table table-borderless compact-table">
+
+                            <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>
+                            <t t-set="otherCurrency" t-value="False"/>
+
+                            <!-- Detect multi-currency -->
+                            <t t-foreach="invoices" t-as="inv">
+                                <t t-if="any(inv.currency_id != par[2].currency_id for par in inv._get_reconciled_invoices_partials()[0])">
+                                    <t t-set="otherCurrency" t-value="True"/>
+                                </t>
+                            </t>
+
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>
+                                        <span>Invoice Date</span>
+                                    </th>
+                                    <th>
+                                        <span>Invoice Number</span>
+                                    </th>
+                                    <th>
+                                        <span>Reference</span>
+                                    </th>
+                                    <th>
+                                        <span>PC/CC</span>
+                                    </th>
+                                    <th t-if="otherCurrency" class="text-end">
+                                        <span>Amount In Currency</span>
+                                    </th>
+                                    <th class="text-end">
+                                        <span>Amount</span>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <t t-set="i" t-value="0"/>
+                                <t t-set="total_applied" t-value="0"/>
+
+                                <t t-foreach="invoices" t-as="inv">
+                                    <t t-if="inv.move_type != 'entry'">
+                                        <t t-set="i" t-value="i + 1"/>
+
+                                        <!-- PAYMENTS -->
+                                        <t t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">
+
+                                            <t t-set="total_applied" t-value="total_applied + (-par[1])"/>
+                                            <t t-set="payment" t-value="par[2]"/>
+
+                                            <t t-set="invoice" t-value="par[0].debit_move_id.move_id if par[0].debit_move_id.move_id.move_type in ('in_invoice','out_invoice') else par[0].credit_move_id.move_id"/>
+
+                                            <t t-set="anzer_id" t-value="invoice.anzer_id"/>
+                                            <t t-set="amountInvoice" t-value="-par[1]"/>
+                                            <t t-set="amountPayment" t-value="-(par[0].debit_amount_currency if par[2].debit &gt; 0 else par[0].credit_amount_currency)"/>
+                                            <t t-set="currencyPayment" t-value="payment.currency_id"/>
+                                            <t t-set="currencyInvoice" t-value="inv.currency_id"/>
+
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="i"/>
+                                                </td>
+
+                                                <td>
+                                                    <span t-field="invoice.invoice_date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                                </td>
+
+                                                <td>
+                                                    <span t-esc="invoice.name"/>
+                                                </td>
+
+                                                <td>
+                                                    <span t-if="invoice.vendor_ref" t-field="invoice.vendor_ref"/>
+                                                    <span t-elif="invoice.ref" t-field="invoice.ref"/>
+                                                </td>
+
+                                                <!-- ANALYTIC DISTRIBUTION / PC-CC -->
+                                                <td>
+                                                    <t t-set="analytic_names" t-value="[]"/>
+
+                                                    <t t-foreach="invoice.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)" t-as="line">
+
+                                                        <t t-foreach="line.analytic_distribution.keys()" t-as="analytic_key">
+
+                                                            <t t-foreach="str(analytic_key).split(',')" t-as="analytic_id">
+
+                                                                <t t-if="analytic_id">
+                                                                    <t t-set="analytic_account" t-value="o.env['account.analytic.account'].browse(int(analytic_id))"/>
+
+                                                                    <t t-if="analytic_account.exists() and analytic_account.name not in analytic_names">
+                                                                        <t t-set="analytic_names" t-value="analytic_names + [analytic_account.name]"/>
+                                                                    </t>
+                                                                </t>
+
+                                                            </t>
+
+                                                        </t>
+
+                                                    </t>
+
+                                                    <span t-esc="', '.join(analytic_names)"/>
+                                                </td>
+
+                                                <td t-if="otherCurrency" class="text-end">
+                                                    <span t-if="currencyPayment != currencyInvoice" t-out="amountPayment" t-options="{'widget': 'monetary', 'display_currency': currencyPayment}"/>
+                                                </td>
+
+                                                <td class="text-end">
+                                                    <span t-out="amountInvoice" t-options="{'widget': 'monetary', 'display_currency': currencyInvoice}"/>
+                                                </td>
+                                            </tr>
+
+                                        </t>
+                                    </t>
+                                </t>
+
+                                <!-- BALANCE -->
+                                <tr>
+                                    <td/>
+                                    <td colspan="4">
+                                        <strong>
+                                            Due Amount for <span t-field="o.name"/>
+                                        </strong>
+                                    </td>
+                                    <td t-if="otherCurrency"/>
+                                    <td class="text-end">
+                                        <strong>
+                                            <span t-out="o.amount + total_applied" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                        <!-- SIGNATURE -->
+                        <div class="mt-4" style="page-break-inside: avoid;">
+
+                            <!-- TITLES -->
+                            <div class="row text-center">
+                                <div class="col-4"><strong>Approved By</strong></div>
+                                <div class="col-4"><strong>Received By</strong></div>
+                                <div class="col-4"><strong>Paid By</strong></div>
+                            </div>
+
+                            <!-- SIGN LINE -->
+                            <div class="row mt-3">
+                                <t t-foreach="[1,2,3]" t-as="x">
+                                    <div class="col-4 px-3">
+                                        <div style="border-bottom: 1px dotted black; height: 20px;"/>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- NAME LINE -->
+                            <div class="row mt-3">
+                                <t t-foreach="[1,2,3]" t-as="x">
+                                    <div class="col-4 px-3">
+                                        <div style="border-bottom: 1px dotted black; height: 20px;"/>
+                                    </div>
+                                </t>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </t>
             </t>
         </t>
     </template>
