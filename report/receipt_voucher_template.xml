@@ -237,11 +237,9 @@
 
                                 <!-- BALANCE -->
                                 <tr>
-                                    <td/>
-                                    <td colspan="4">
-                                        <strong>
-                                            Due Amount
-                                        </strong>
+                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
+                                    <td t-att-colspan="2" class="text-end">
+                                        <strong>Due Amount</strong>
                                     </td>
                                     <td t-if="otherCurrency"/>
                                     <td class="text-end amount-cell">

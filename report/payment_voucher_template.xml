@@ -178,8 +178,8 @@
 
                                 <!-- FIX 4: correct colspan logic -->
                                 <tr>
-                                    <td t-att-colspan="4 if not otherCurrency else 5"/>
-                                    <td class="text-end">
+                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
+                                    <td t-att-colspan="2" class="text-end">
                                         <strong>Due Amount</strong>
                                     </td>
                                     <td class="text-end amount-cell">
