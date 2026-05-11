@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_payment_form_voucher_print" model="ir.ui.view">
+        <field name="name">account.payment.form.voucher.print</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_draft']" position="after">
+                <button name="action_open_payment_voucher_print_wizard"
+                        string="Print"
+                        type="object"
+                        class="btn btn-secondary"
+                        invisible="state not in ['in_process', 'paid']"
+                        groups="account.group_account_invoice"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

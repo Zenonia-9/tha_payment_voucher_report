@@ -1,0 +1,25 @@
+{
+    "name": "THA Payment Voucher Report",
+    "summary": "Print vendor payment and customer receipt vouchers from payments",
+    "version": "19.0.1.0.0",
+    "category": "Accounting",
+    "author": "Thein Htoo Aung",
+    "license": "LGPL-3",
+    "depends": [
+        "account",
+        "web",
+    ],
+    "data": [
+        "security/ir.model.access.csv",
+        "report/paperformat.xml",
+        "report/payment_voucher_layout.xml",
+        "report/payment_voucher_template.xml",
+        "report/receipt_voucher_template.xml",
+        "report/payment_voucher_report.xml",
+        "wizard/payment_voucher_print_wizard_views.xml",
+        "views/account_payment_views.xml",
+    ],
+    "installable": True,
+    "application": False,
+    "auto_install": False,
+}

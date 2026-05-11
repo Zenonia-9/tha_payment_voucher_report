@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_payment_voucher_print_wizard_form" model="ir.ui.view">
+        <field name="name">payment.voucher.print.wizard.form</field>
+        <field name="model">payment.voucher.print.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Print Voucher">
+                <field name="currency_id" invisible="1"/>
+                <group>
+                    <field name="payment_id"/>
+                    <field name="company_id"/>
+                    <label for="amount"/>
+                    <div class="o_row">
+                        <field name="amount"/>
+                        <field name="currency_id" groups="base.group_multi_currency"/>
+                    </div>
+                    <field name="paper_format" widget="radio" options="{'horizontal': True}"/>
+                </group>
+                <footer>
+                    <button name="action_print"
+                            string="Print"
+                            type="object"
+                            class="oe_highlight"
+                            data-hotkey="q"/>
+                    <button string="Cancel"
+                            special="cancel"
+                            class="btn-secondary"
+                            data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

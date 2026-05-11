@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="payment_voucher_layout">
+        <t t-if="not o" t-set="o" t-value="doc"/>
+        <t t-if="not company">
+            <t t-if="o and o.company_id">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+
+        <style>
+            .tpvr-header {
+                border-bottom: 2px solid #111827;
+                padding-bottom: 8px;
+                font-family: Arial, sans-serif;
+            }
+            .tpvr-logo {
+                max-height: 58px;
+                max-width: 170px;
+            }
+            .tpvr-company-name {
+                font-size: 18px;
+                font-weight: 700;
+                color: #111827;
+            }
+            .tpvr-company-meta {
+                font-size: 11px;
+                color: #374151;
+                line-height: 1.35;
+            }
+            .tpvr-article {
+                font-family: Arial, sans-serif;
+                color: #111827;
+                font-size: 12px;
+            }
+            .tpvr-header .row,
+            .tpvr-article .row,
+            .tpvr-footer .row {
+                display: table;
+                table-layout: fixed;
+                width: 100%;
+            }
+            .tpvr-header [class*="col-"],
+            .tpvr-article [class*="col-"],
+            .tpvr-footer [class*="col-"] {
+                display: table-cell;
+                float: none;
+                vertical-align: top;
+            }
+            .tpvr-header .align-items-center [class*="col-"] {
+                vertical-align: middle;
+            }
+            .tpvr-header .col-3,
+            .tpvr-article .col-3,
+            .tpvr-footer .col-3 {
+                width: 25%;
+            }
+            .tpvr-header .col-4,
+            .tpvr-article .col-4,
+            .tpvr-footer .col-4 {
+                width: 33.3333%;
+            }
+            .tpvr-header .col-5,
+            .tpvr-article .col-5,
+            .tpvr-footer .col-5 {
+                width: 41.6667%;
+            }
+            .tpvr-header .col-7,
+            .tpvr-article .col-7,
+            .tpvr-footer .col-7 {
+                width: 58.3333%;
+            }
+            .tpvr-header .col-8,
+            .tpvr-article .col-8,
+            .tpvr-footer .col-8 {
+                width: 66.6667%;
+            }
+            .tpvr-header .col-9,
+            .tpvr-article .col-9,
+            .tpvr-footer .col-9 {
+                width: 75%;
+            }
+            .tpvr-header .col-12,
+            .tpvr-article .col-12,
+            .tpvr-footer .col-12 {
+                display: block;
+                width: 100%;
+            }
+            .tpvr-header .text-end,
+            .tpvr-article .text-end,
+            .tpvr-footer .text-end {
+                text-align: right;
+            }
+            .tpvr-header .text-center,
+            .tpvr-article .text-center,
+            .tpvr-footer .text-center {
+                text-align: center;
+            }
+            .tpvr-article .mt-1 {
+                margin-top: 4px;
+            }
+            .tpvr-article .mt-2 {
+                margin-top: 8px;
+            }
+            .tpvr-title {
+                text-align: center;
+                font-size: 21px;
+                font-weight: 700;
+                letter-spacing: 0;
+                text-transform: uppercase;
+                margin: 10px 0 14px;
+            }
+            .tpvr-box {
+                border: 1px solid #d1d5db;
+                padding: 8px 10px;
+                margin-bottom: 10px;
+            }
+            .tpvr-label {
+                color: #4b5563;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+            .tpvr-value {
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .tpvr-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 8px;
+            }
+            .tpvr-table th,
+            .tpvr-table td {
+                border: 1px solid #d1d5db;
+                padding: 6px 7px;
+                vertical-align: top;
+            }
+            .tpvr-table th {
+                background: #f3f4f6;
+                font-size: 11px;
+                text-transform: uppercase;
+            }
+            .tpvr-signature-row {
+                margin-top: 34px;
+            }
+            .tpvr-signature {
+                border-top: 1px solid #111827;
+                text-align: center;
+                padding-top: 6px;
+                font-size: 11px;
+                font-weight: 700;
+            }
+            .tpvr-footer {
+                border-top: 1px solid #d1d5db;
+                padding-top: 5px;
+                font-size: 10px;
+                color: #6b7280;
+                font-family: Arial, sans-serif;
+            }
+        </style>
+
+        <div t-attf-class="header o_company_#{company.id}_layout tpvr-header">
+            <div class="row align-items-center">
+                <div class="col-3">
+                    <img t-if="company.logo"
+                         class="tpvr-logo"
+                         t-att-src="image_data_uri(company.logo)"
+                         alt="Company Logo"/>
+                </div>
+                <div class="col-9 text-end">
+                    <div class="tpvr-company-name" t-field="company.name">Company Name</div>
+                    <div class="tpvr-company-meta" t-if="company.company_details" t-field="company.company_details"/>
+                    <div class="tpvr-company-meta" t-else="">
+                        <span t-field="company.partner_id"
+                              t-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout tpvr-article"
+             t-att-data-oe-model="o and o._name"
+             t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-out="0"/>
+        </div>
+
+        <div t-attf-class="footer o_company_#{company.id}_layout tpvr-footer">
+            <div class="row">
+                <div class="col-8">
+                    <span t-out="layout_document_title">Voucher</span>
+                    <span t-if="o and o.name"> - <span t-field="o.name"/></span>
+                </div>
+                <div class="col-4 text-end">
+                    Page <span class="page"/> / <span class="topage"/>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>
