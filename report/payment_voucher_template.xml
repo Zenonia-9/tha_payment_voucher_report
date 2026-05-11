@@ -12,12 +12,21 @@
                     <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
 
                     <style>
-                        @page {
-                            size: A4 portrait;
-                        }
-
                         .page {
                             font-size: 14px;
+                        }
+
+                        .voucher-info .fw-bold {
+                            white-space: nowrap;
+                        }
+
+                        .voucher-info .col-7 {
+                            overflow-wrap: anywhere;
+                        }
+
+                        .compact-table {
+                            table-layout: fixed;
+                            width: 100%;
                         }
 
                         .compact-table td,
@@ -25,6 +34,11 @@
                             line-height: 1.5 !important;
                             vertical-align: middle;
                             padding: 4px 5px !important;
+                            overflow-wrap: anywhere;
+                        }
+
+                        .compact-table .amount-cell {
+                            white-space: nowrap;
                         }
 
                         .compact-table tr {
@@ -40,7 +54,7 @@
                         </div>
 
                         <!-- HEADER -->
-                        <div class="row mb-2">
+                        <div class="row mb-2 voucher-info">
                             <div class="col-6">
                                 <div class="row mb-1">
                                     <div class="col-5 fw-bold">Payment Voucher</div>
@@ -93,13 +107,14 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Invoice Date</th>
+                                    <th>Bill Date</th>
                                     <th>Bill Number</th>
                                     <th>Reference</th>
+                                    <th>PC/CC</th>
                                     <th t-if="otherCurrency" class="text-end">
-                                        Paid Amount (<span t-field="o.currency_id.name"/>)
+                                        Paid (<span t-field="o.currency_id.name"/>)
                                     </th>
-                                    <th class="text-end">Applied Amount</th>
+                                    <th class="text-end">Amount</th>
                                 </tr>
                             </thead>
 
@@ -131,12 +146,29 @@
                                                 <span t-elif="inv.ref" t-field="inv.ref"/>
                                             </td>
 
+                                            <td>
+                                                <t t-set="analytic_names" t-value="[]"/>
+                                                <t t-foreach="inv.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)" t-as="line">
+                                                    <t t-foreach="line.analytic_distribution.keys()" t-as="analytic_key">
+                                                        <t t-foreach="str(analytic_key).split(',')" t-as="analytic_id">
+                                                            <t t-if="analytic_id">
+                                                                <t t-set="analytic_account" t-value="o.env['account.analytic.account'].browse(int(analytic_id))"/>
+                                                                <t t-if="analytic_account.exists() and analytic_account.name not in analytic_names">
+                                                                    <t t-set="analytic_names" t-value="analytic_names + [analytic_account.name]"/>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                                <span t-esc="', '.join(analytic_names)"/>
+                                            </td>
+
                                             <!-- FIX 3: remove undefined variable -->
-                                            <td t-if="otherCurrency" class="text-end">
+                                            <td t-if="otherCurrency" class="text-end amount-cell">
                                                 <span t-out="signed_total" t-options="{'widget': 'monetary',                                                       'display_currency': o.currency_id}"/>
                                             </td>
 
-                                            <td class="text-end">
+                                            <td class="text-end amount-cell">
                                                 <span t-out="signed_total" t-options="{'widget': 'monetary',                                                       'display_currency': inv.currency_id}"/>
                                             </td>
                                         </tr>
@@ -146,11 +178,11 @@
 
                                 <!-- FIX 4: correct colspan logic -->
                                 <tr>
-                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
+                                    <td t-att-colspan="4 if not otherCurrency else 5"/>
                                     <td class="text-end">
                                         <strong>Due Amount</strong>
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-end amount-cell">
                                         <strong>
                                             <span t-out="abs(o.amount - total_applied)" t-options="{'widget': 'monetary',                                                   'display_currency': o.currency_id}"/>
                                         </strong>
@@ -205,12 +237,21 @@
                     <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
 
                     <style>
-                        @page {
-                            size: A5 portrait;
-                        }
-
                         .page {
                             font-size: 12px;
+                        }
+
+                        .voucher-info .fw-bold {
+                            white-space: nowrap;
+                        }
+
+                        .voucher-info .col-7 {
+                            overflow-wrap: anywhere;
+                        }
+
+                        .compact-table {
+                            table-layout: fixed;
+                            width: 100%;
                         }
 
                         .compact-table td,
@@ -218,6 +259,11 @@
                             line-height: 1.25 !important;
                             vertical-align: middle;
                             padding: 4px 5px !important;
+                            overflow-wrap: anywhere;
+                        }
+
+                        .compact-table .amount-cell {
+                            white-space: nowrap;
                         }
 
                         .compact-table tr {
@@ -233,7 +279,7 @@
                         </div>
 
                         <!-- HEADER -->
-                        <div class="row mb-2">
+                        <div class="row mb-2 voucher-info">
                             <div class="col-6">
                                 <div class="row mb-1">
                                     <div class="col-5 fw-bold">Payment Voucher</div>
@@ -288,13 +334,14 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Invoice Date</th>
+                                    <th>Bill Date</th>
                                     <th>Bill Number</th>
                                     <th>Reference</th>
+                                    <th>PC/CC</th>
                                     <th t-if="otherCurrency" class="text-end">
-                                        Paid Amount (<span t-field="o.currency_id.name"/>)
+                                        Paid (<span t-field="o.currency_id.name"/>)
                                     </th>
-                                    <th class="text-end">Applied Amount</th>
+                                    <th class="text-end">Amount</th>
                                 </tr>
                             </thead>
 
@@ -326,12 +373,29 @@
                                                 <span t-elif="inv.ref" t-field="inv.ref"/>
                                             </td>
 
+                                            <td>
+                                                <t t-set="analytic_names" t-value="[]"/>
+                                                <t t-foreach="inv.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)" t-as="line">
+                                                    <t t-foreach="line.analytic_distribution.keys()" t-as="analytic_key">
+                                                        <t t-foreach="str(analytic_key).split(',')" t-as="analytic_id">
+                                                            <t t-if="analytic_id">
+                                                                <t t-set="analytic_account" t-value="o.env['account.analytic.account'].browse(int(analytic_id))"/>
+                                                                <t t-if="analytic_account.exists() and analytic_account.name not in analytic_names">
+                                                                    <t t-set="analytic_names" t-value="analytic_names + [analytic_account.name]"/>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                                <span t-esc="', '.join(analytic_names)"/>
+                                            </td>
+
                                             <!-- FIX 3: remove undefined variable -->
-                                            <td t-if="otherCurrency" class="text-end">
+                                            <td t-if="otherCurrency" class="text-end amount-cell">
                                                 <span t-out="signed_total" t-options="{'widget': 'monetary',                                                       'display_currency': o.currency_id}"/>
                                             </td>
 
-                                            <td class="text-end">
+                                            <td class="text-end amount-cell">
                                                 <span t-out="signed_total" t-options="{'widget': 'monetary',                                                       'display_currency': inv.currency_id}"/>
                                             </td>
                                         </tr>
@@ -341,11 +405,11 @@
 
                                 <!-- FIX 4: correct colspan logic -->
                                 <tr>
-                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
+                                    <td t-att-colspan="4 if not otherCurrency else 5"/>
                                     <td class="text-end">
                                         <strong>Due Amount</strong>
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-end amount-cell">
                                         <strong>
                                             <span t-out="abs(o.amount - total_applied)" t-options="{'widget': 'monetary',                                                   'display_currency': o.currency_id}"/>
                                         </strong>
