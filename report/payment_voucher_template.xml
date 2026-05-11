@@ -7,7 +7,7 @@
                 <t t-set="o" t-value="o.with_context(lang=lang)"/>
                 <t t-set="company" t-value="o.company_id.sudo()"/>
                 <!-- <t t-set="layout_document_title" t-value="'Vendor Payment Voucher'"/> -->
-                <t t-call="web.external_layout">
+                <t t-call="tha_payment_voucher_report.payment_voucher_layout_a4">
                     <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
                     <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
 
@@ -49,7 +49,7 @@
                     <div class="page">
 
                         <!-- TITLE -->
-                        <div class="text-center mb-2">
+                        <div class="text-center mb-3">
                             <h4 style="font-weight: bold; margin: 0;">Payment Voucher</h4>
                         </div>
 
@@ -106,11 +106,11 @@
 
                             <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>Bill Date</th>
-                                    <th>Bill Number</th>
+                                    <th style="width: 10mm;">No</th>
+                                    <th style="width: 25mm;">Bill Date</th>
+                                    <th style="width: 40mm;">Bill Number</th>
                                     <th>Reference</th>
-                                    <th>PC/CC</th>
+                                    <th style="width: 15mm;">PC/CC</th>
                                     <th t-if="otherCurrency" class="text-end">
                                         Paid (<span t-field="o.currency_id.name"/>)
                                     </th>
@@ -232,13 +232,13 @@
                 <t t-set="o" t-value="o.with_context(lang=lang)"/>
                 <t t-set="company" t-value="o.company_id.sudo()"/>
                 <!-- <t t-set="layout_document_title" t-value="'Vendor Payment Voucher'"/> -->
-                <t t-call="web.external_layout">
+                <t t-call="tha_payment_voucher_report.payment_voucher_layout_a5">
                     <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
                     <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
 
                     <style>
                         .page {
-                            font-size: 12px;
+                            font-size: 11px;
                         }
 
                         .voucher-info .fw-bold {
@@ -258,7 +258,7 @@
                         .compact-table th {
                             line-height: 1.25 !important;
                             vertical-align: middle;
-                            padding: 4px 5px !important;
+                            padding: 2px 3px !important;
                             overflow-wrap: anywhere;
                         }
 
@@ -333,11 +333,11 @@
 
                             <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>Bill Date</th>
-                                    <th>Bill Number</th>
+                                    <th style="width: 8mm;">No</th>
+                                    <th style="width: 20mm;">Bill Date</th>
+                                    <th style="width: 33mm;">Bill Number</th>
                                     <th>Reference</th>
-                                    <th>PC/CC</th>
+                                    <th style="width: 15mm;">PC/CC</th>
                                     <th t-if="otherCurrency" class="text-end">
                                         Paid (<span t-field="o.currency_id.name"/>)
                                     </th>
@@ -405,8 +405,8 @@
 
                                 <!-- FIX 4: correct colspan logic -->
                                 <tr>
-                                    <td t-att-colspan="4 if not otherCurrency else 5"/>
-                                    <td class="text-end">
+                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
+                                    <td t-att-colspan="2" class="text-end">
                                         <strong>Due Amount</strong>
                                     </td>
                                     <td class="text-end amount-cell">
