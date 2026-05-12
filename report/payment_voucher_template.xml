@@ -103,6 +103,7 @@
                             <t t-set="invoices" t-value="(o.reconciled_invoice_ids or o.reconciled_bill_ids)                             .sorted(key=lambda i: i.invoice_date or i.date)"/>
 
                             <t t-set="otherCurrency" t-value="any(inv.currency_id != o.currency_id for inv in invoices)"/>
+                            <t t-set="show_pc_cc" t-value="any(inv.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution) for inv in invoices if inv.move_type != 'entry')"/>
 
                             <thead>
                                 <tr>
@@ -110,7 +111,7 @@
                                     <th style="width: 25mm;">Bill Date</th>
                                     <th style="width: 40mm;">Bill Number</th>
                                     <th>Reference</th>
-                                    <th style="width: 15mm;">PC/CC</th>
+                                    <th t-if="show_pc_cc" style="width: 15mm;">PC/CC</th>
                                     <th t-if="otherCurrency" class="text-end">
                                         Paid (<span t-field="o.currency_id.name"/>)
                                     </th>
@@ -146,7 +147,7 @@
                                                 <span t-elif="inv.ref" t-field="inv.ref"/>
                                             </td>
 
-                                            <td>
+                                            <td t-if="show_pc_cc">
                                                 <t t-set="analytic_names" t-value="[]"/>
                                                 <t t-foreach="inv.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)" t-as="line">
                                                     <t t-foreach="line.analytic_distribution.keys()" t-as="analytic_key">
@@ -178,8 +179,8 @@
 
                                 <!-- FIX 4: correct colspan logic -->
                                 <tr>
-                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
-                                    <td t-att-colspan="2" class="text-end">
+                                    <td colspan="3"/>
+                                    <td t-att-colspan="(2 if show_pc_cc else 1) + (1 if otherCurrency else 0)" class="text-end">
                                         <strong>Due Amount</strong>
                                     </td>
                                     <td class="text-end amount-cell">
@@ -330,6 +331,7 @@
                             <t t-set="invoices" t-value="(o.reconciled_invoice_ids or o.reconciled_bill_ids).sorted(key=lambda i: i.invoice_date or i.date)"/>
 
                             <t t-set="otherCurrency" t-value="any(inv.currency_id != o.currency_id for inv in invoices)"/>
+                            <t t-set="show_pc_cc" t-value="any(inv.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution) for inv in invoices if inv.move_type != 'entry')"/>
 
                             <thead>
                                 <tr>
@@ -337,7 +339,7 @@
                                     <th style="width: 20mm;">Bill Date</th>
                                     <th style="width: 33mm;">Bill Number</th>
                                     <th>Reference</th>
-                                    <th style="width: 15mm;">PC/CC</th>
+                                    <th t-if="show_pc_cc" style="width: 15mm;">PC/CC</th>
                                     <th t-if="otherCurrency" class="text-end">
                                         Paid (<span t-field="o.currency_id.name"/>)
                                     </th>
@@ -373,7 +375,7 @@
                                                 <span t-elif="inv.ref" t-field="inv.ref"/>
                                             </td>
 
-                                            <td>
+                                            <td t-if="show_pc_cc">
                                                 <t t-set="analytic_names" t-value="[]"/>
                                                 <t t-foreach="inv.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)" t-as="line">
                                                     <t t-foreach="line.analytic_distribution.keys()" t-as="analytic_key">
@@ -405,8 +407,8 @@
 
                                 <!-- FIX 4: correct colspan logic -->
                                 <tr>
-                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
-                                    <td t-att-colspan="2" class="text-end">
+                                    <td colspan="3"/>
+                                    <td t-att-colspan="(2 if show_pc_cc else 1) + (1 if otherCurrency else 0)" class="text-end">
                                         <strong>Due Amount</strong>
                                     </td>
                                     <td class="text-end amount-cell">

@@ -123,11 +123,24 @@
 
                             <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>
                             <t t-set="otherCurrency" t-value="False"/>
+                            <t t-set="show_pc_cc" t-value="False"/>
 
                             <!-- Detect multi-currency -->
                             <t t-foreach="invoices" t-as="inv">
                                 <t t-if="any(inv.currency_id != par[2].currency_id for par in inv._get_reconciled_invoices_partials()[0])">
                                     <t t-set="otherCurrency" t-value="True"/>
+                                </t>
+                            </t>
+
+                            <!-- Detect PC/CC value -->
+                            <t t-foreach="invoices" t-as="inv">
+                                <t t-if="inv.move_type != 'entry'">
+                                    <t t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">
+                                        <t t-set="invoice_for_pc_cc" t-value="par[0].debit_move_id.move_id if par[0].debit_move_id.move_id.move_type in ('in_invoice','out_invoice') else par[0].credit_move_id.move_id"/>
+                                        <t t-if="invoice_for_pc_cc.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)">
+                                            <t t-set="show_pc_cc" t-value="True"/>
+                                        </t>
+                                    </t>
                                 </t>
                             </t>
 
@@ -143,7 +156,7 @@
                                     <th>
                                         <span>Reference</span>
                                     </th>
-                                    <th style="width: 15mm;">
+                                    <th t-if="show_pc_cc" style="width: 15mm;">
                                         <span>PC/CC</span>
                                     </th>
                                     <th t-if="otherCurrency" class="text-end">
@@ -196,7 +209,7 @@
                                                 </td>
 
                                                 <!-- ANALYTIC DISTRIBUTION / PC-CC -->
-                                                <td>
+                                                <td t-if="show_pc_cc">
                                                     <t t-set="analytic_names" t-value="[]"/>
 
                                                     <t t-foreach="invoice.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)" t-as="line">
@@ -237,8 +250,8 @@
 
                                 <!-- BALANCE -->
                                 <tr>
-                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
-                                    <td t-att-colspan="2" class="text-end">
+                                    <td colspan="3"/>
+                                    <td t-att-colspan="2 if show_pc_cc else 1" class="text-end">
                                         <strong>Due Amount</strong>
                                     </td>
                                     <td t-if="otherCurrency"/>
@@ -311,6 +324,10 @@
                             overflow-wrap: anywhere;
                         }
 
+                        .voucher-info .pr-2 {
+                            padding-right: 2px;
+                        }
+
                         .compact-table {
                             table-layout: fixed;
                             width: 100%;
@@ -343,7 +360,7 @@
                         <div class="row mb-2 voucher-info">
 
                             <!-- LEFT -->
-                            <div class="col-6">
+                            <div class="col-6 pr-2">
                                 <div class="row mb-1">
                                     <div class="col-5 fw-bold">Receipt Voucher</div>
                                     <div class="col-7">
@@ -411,11 +428,24 @@
 
                             <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>
                             <t t-set="otherCurrency" t-value="False"/>
+                            <t t-set="show_pc_cc" t-value="False"/>
 
                             <!-- Detect multi-currency -->
                             <t t-foreach="invoices" t-as="inv">
                                 <t t-if="any(inv.currency_id != par[2].currency_id for par in inv._get_reconciled_invoices_partials()[0])">
                                     <t t-set="otherCurrency" t-value="True"/>
+                                </t>
+                            </t>
+
+                            <!-- Detect PC/CC value -->
+                            <t t-foreach="invoices" t-as="inv">
+                                <t t-if="inv.move_type != 'entry'">
+                                    <t t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">
+                                        <t t-set="invoice_for_pc_cc" t-value="par[0].debit_move_id.move_id if par[0].debit_move_id.move_id.move_type in ('in_invoice','out_invoice') else par[0].credit_move_id.move_id"/>
+                                        <t t-if="invoice_for_pc_cc.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)">
+                                            <t t-set="show_pc_cc" t-value="True"/>
+                                        </t>
+                                    </t>
                                 </t>
                             </t>
 
@@ -431,7 +461,7 @@
                                     <th>
                                         <span>Reference</span>
                                     </th>
-                                    <th style="width: 15mm;">
+                                    <th t-if="show_pc_cc" style="width: 15mm;">
                                         <span>PC/CC</span>
                                     </th>
                                     <th t-if="otherCurrency" class="text-end">
@@ -484,7 +514,7 @@
                                                 </td>
 
                                                 <!-- ANALYTIC DISTRIBUTION / PC-CC -->
-                                                <td>
+                                                <td t-if="show_pc_cc">
                                                     <t t-set="analytic_names" t-value="[]"/>
 
                                                     <t t-foreach="invoice.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note') and l.analytic_distribution)" t-as="line">
@@ -525,8 +555,8 @@
 
                                 <!-- BALANCE -->
                                 <tr>
-                                    <td t-att-colspan="3 if not otherCurrency else 4"/>
-                                    <td t-att-colspan="2" class="text-end">
+                                    <td colspan="3"/>
+                                    <td t-att-colspan="2 if show_pc_cc else 1" class="text-end">
                                         <strong>Due Amount</strong>
                                     </td>
                                     <td t-if="otherCurrency"/>
