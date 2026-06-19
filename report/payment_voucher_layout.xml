@@ -228,7 +228,6 @@
                         <th style="width: 8mm;">No</th>
                         <th style="width: 22mm;">Date</th>
                         <th style="width: 32mm;">Document</th>
-                        <th style="width: 24mm;">Type</th>
                         <th>Reference</th>
                         <th t-if="values.get('show_pc_cc')" style="width: 15mm;">PC/CC</th>
                         <th t-if="values.get('other_currency')" class="text-end">
@@ -244,7 +243,6 @@
                             <span t-out="line.get('date')" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
                         </td>
                         <td><span t-esc="line.get('document_number')"/></td>
-                        <td><span t-esc="line.get('document_type')"/></td>
                         <td><span t-esc="line.get('reference')"/></td>
                         <td t-if="values.get('show_pc_cc')"><span t-esc="line.get('pc_cc')"/></td>
                         <td t-if="values.get('other_currency')" class="text-end amount-cell">
@@ -258,7 +256,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="4"/>
+                        <td colspan="3"/>
                         <td t-att-colspan="(2 if values.get('show_pc_cc') else 1) + (1 if values.get('other_currency') else 0)" class="text-end">
                             <strong>Due Amount</strong>
                         </td>
