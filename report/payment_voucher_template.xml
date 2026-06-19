@@ -70,6 +70,10 @@
                                         <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                     </div>
                                 </div>
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Journal</div>
+                                    <div class="col-7"><span t-field="o.journal_id"/></div>
+                                </div>
                             </div>
 
                             <div class="col-6">
@@ -299,6 +303,10 @@
                                     <div class="col-7">
                                         <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                     </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Journal</div>
+                                    <div class="col-7"><span t-field="o.journal_id"/></div>
                                 </div>
                             </div>
 
