@@ -63,7 +63,6 @@ class AccountPayment(models.Model):
                     line_values_by_id[matched_line.id] = self._prepare_payment_voucher_match_line(
                         matched_line,
                         sign,
-                        payment_currency,
                         company_currency,
                     )
                 continue
@@ -79,7 +78,6 @@ class AccountPayment(models.Model):
                 line_values_by_id[matched_line.id] = self._prepare_payment_voucher_match_line(
                     matched_line,
                     sign,
-                    payment_currency,
                     company_currency,
                     partial=partial,
                 )
@@ -92,25 +90,34 @@ class AccountPayment(models.Model):
                 value["sequence"],
             ),
         )
-        matched_amount = sum(line["payment_currency_amount"] for line in lines)
-        difference = payment_currency.round(self.amount - matched_amount)
+        matched_company_amount = sum(line["amount_company"] for line in lines)
+        payment_company_amount = self._get_payment_voucher_company_amount(
+            payment_lines,
+            company_currency,
+        )
+        difference_company_amount = company_currency.round(
+            payment_company_amount - matched_company_amount
+        )
 
         return {
             "display_invoices": False,
             "display_match_lines": bool(lines),
             "lines": lines,
-            "matched_amount": matched_amount,
-            "payment_amount": self.amount,
-            "difference": difference,
+            "company_currency": company_currency,
+            "payment_currency": payment_currency,
+            "matched_company_amount": matched_company_amount,
+            "payment_company_amount": payment_company_amount,
+            "difference_company_amount": difference_company_amount,
             "show_pc_cc": any(line["pc_cc"] for line in lines),
-            "other_currency": any(line["currency"] != payment_currency for line in lines),
+            "show_foreign_currency": any(
+                line["line_currency"] != company_currency for line in lines
+            ),
         }
 
     def _prepare_payment_voucher_match_line(
         self,
         line,
         sign,
-        payment_currency,
         company_currency,
         partial=None,
     ):
@@ -130,27 +137,30 @@ class AccountPayment(models.Model):
                 line_currency,
             )
 
-        if line_currency == payment_currency:
-            payment_currency_amount = amount_currency
-        else:
-            payment_currency_amount = company_currency._convert(
-                amount_company,
-                payment_currency,
-                self.company_id,
-                self.date,
-            )
-
         return {
             "sequence": line.id,
             "date": move.invoice_date or move.date,
             "document_number": move.name,
-            "document_type": self._get_payment_voucher_document_type(move),
             "reference": self._get_payment_voucher_line_reference(move, line),
             "pc_cc": self._get_payment_voucher_pc_cc(move),
-            "currency": line_currency,
-            "amount": amount_currency,
-            "payment_currency_amount": payment_currency_amount,
+            "company_currency": company_currency,
+            "line_currency": line_currency,
+            "amount_company": amount_company,
+            "amount_currency": amount_currency,
         }
+
+    def _get_payment_voucher_company_amount(self, payment_lines, company_currency):
+        payment_company_amount = abs(sum(payment_lines.mapped("balance")))
+        if payment_company_amount:
+            return payment_company_amount
+        return company_currency.round(
+            self.currency_id._convert(
+                self.amount,
+                company_currency,
+                self.company_id,
+                self.date,
+            )
+        )
 
     def _get_payment_voucher_partial_currency_amount(self, line, partial, currency):
         if currency == self.company_id.currency_id:
@@ -158,13 +168,6 @@ class AccountPayment(models.Model):
         if line == partial.debit_move_id:
             return abs(partial.debit_amount_currency)
         return abs(partial.credit_amount_currency)
-
-    def _get_payment_voucher_document_type(self, move):
-        if move.move_type in ("out_invoice", "in_invoice", "out_receipt", "in_receipt"):
-            return _("Invoice") if move.is_sale_document(True) else _("Bill")
-        if move.move_type in ("out_refund", "in_refund"):
-            return _("Credit Note") if move.is_sale_document(True) else _("Refund")
-        return _("Journal Entry")
 
     def _get_payment_voucher_line_reference(self, move, line):
         if "vendor_ref" in move._fields and move.vendor_ref:

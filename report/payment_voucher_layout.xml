@@ -226,12 +226,12 @@
                 <thead>
                     <tr>
                         <th style="width: 8mm;">No</th>
-                        <th style="width: 22mm;">Date</th>
-                        <th style="width: 32mm;">Document</th>
+                        <th>Date</th>
+                        <th>Document</th>
                         <th>Reference</th>
                         <th t-if="values.get('show_pc_cc')" style="width: 15mm;">PC/CC</th>
-                        <th t-if="values.get('other_currency')" class="text-end">
-                            Paid (<span t-field="o.currency_id.name"/>)
+                        <th t-if="values.get('show_foreign_currency')" class="text-end">
+                            Amount in Currency
                         </th>
                         <th class="text-end">Amount</th>
                     </tr>
@@ -245,24 +245,24 @@
                         <td><span t-esc="line.get('document_number')"/></td>
                         <td><span t-esc="line.get('reference')"/></td>
                         <td t-if="values.get('show_pc_cc')"><span t-esc="line.get('pc_cc')"/></td>
-                        <td t-if="values.get('other_currency')" class="text-end amount-cell">
-                            <span t-if="line.get('currency') != o.currency_id"
-                                  t-out="line.get('payment_currency_amount')"
-                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                        <td t-if="values.get('show_foreign_currency')" class="text-end amount-cell">
+                            <span t-if="line.get('line_currency') != values.get('company_currency')"
+                                  t-out="line.get('amount_currency')"
+                                  t-options="{'widget': 'monetary', 'display_currency': line.get('line_currency')}"/>
                         </td>
                         <td class="text-end amount-cell">
-                            <span t-out="line.get('amount')"
-                                  t-options="{'widget': 'monetary', 'display_currency': line.get('currency')}"/>
+                            <span t-out="line.get('amount_company')"
+                                  t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="3"/>
-                        <td t-att-colspan="(2 if values.get('show_pc_cc') else 1) + (1 if values.get('other_currency') else 0)" class="text-end">
+                        <td t-att-colspan="(2 if values.get('show_pc_cc') else 1) + (1 if values.get('show_foreign_currency') else 0)" class="text-end">
                             <strong>Due Amount</strong>
                         </td>
                         <td class="text-end amount-cell">
                             <strong>
-                                <span t-out="values.get('difference')" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                <span t-out="values.get('difference_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
                             </strong>
                         </td>
                     </tr>

@@ -24,7 +24,7 @@
                         }
 
                         .compact-table {
-                            table-layout: fixed;
+                            table-layout: auto;
                             width: 100%;
                         }
 
@@ -73,7 +73,7 @@
                                 <div class="row mb-1">
                                     <div class="col-5 fw-bold">Receipt Amount</div>
                                     <div class="col-7">
-                                        <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        <span t-out="values.get('payment_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
                                     </div>
                                 </div>
 
@@ -331,7 +331,7 @@
                         }
 
                         .compact-table {
-                            table-layout: fixed;
+                            table-layout: auto;
                             width: 100%;
                         }
 
@@ -380,7 +380,7 @@
                                 <div class="row mb-1">
                                     <div class="col-5 fw-bold">Receipt Amount</div>
                                     <div class="col-7">
-                                        <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        <span t-out="values.get('payment_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
                                     </div>
                                 </div>
 
