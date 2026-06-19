@@ -9,7 +9,7 @@
                 <!-- <t t-set="layout_document_title" t-value="'Customer Receipt Voucher'"/> -->
                 <t t-call="tha_payment_voucher_report.payment_voucher_layout_a4">
                     <t t-set="o" t-value="o.with_context(lang=lang)"/>
-                    <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
+                    <t t-set="values" t-value="o._get_payment_voucher_match_values()"/>
                     <style>
                         .page {
                             font-size: 14px;
@@ -117,6 +117,8 @@
                             </div>
 
                         </div>
+
+                        <t t-call="tha_payment_voucher_report.payment_voucher_match_table"/>
 
                         <!-- INVOICE TABLE -->
                         <table name="invoices" t-if="values.get('display_invoices')" class="table table-borderless compact-table">
@@ -310,7 +312,7 @@
                 <!-- <t t-set="layout_document_title" t-value="'Customer Receipt Voucher'"/> -->
                 <t t-call="tha_payment_voucher_report.payment_voucher_layout_a5">
                     <t t-set="o" t-value="o.with_context(lang=lang)"/>
-                    <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
+                    <t t-set="values" t-value="o._get_payment_voucher_match_values()"/>
                     <style>
                         .page {
                             font-size: 11px;
@@ -422,6 +424,8 @@
                             </div>
 
                         </div>
+
+                        <t t-call="tha_payment_voucher_report.payment_voucher_match_table"/>
 
                         <!-- INVOICE TABLE -->
                         <table name="invoices" t-if="values.get('display_invoices')" class="table table-borderless compact-table">

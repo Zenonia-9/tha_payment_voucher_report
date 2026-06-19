@@ -219,4 +219,57 @@
             <div class="o_footer_content"/>
         </div>
     </template>
+
+    <template id="payment_voucher_match_table">
+        <t t-if="values.get('display_match_lines')">
+            <table name="payment_voucher_match_lines" class="table table-borderless compact-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8mm;">No</th>
+                        <th style="width: 22mm;">Date</th>
+                        <th style="width: 32mm;">Document</th>
+                        <th style="width: 24mm;">Type</th>
+                        <th>Reference</th>
+                        <th t-if="values.get('show_pc_cc')" style="width: 15mm;">PC/CC</th>
+                        <th t-if="values.get('other_currency')" class="text-end">
+                            Paid (<span t-field="o.currency_id.name"/>)
+                        </th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="values.get('lines')" t-as="line">
+                        <td><span t-esc="line_index + 1"/></td>
+                        <td>
+                            <span t-out="line.get('date')" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                        </td>
+                        <td><span t-esc="line.get('document_number')"/></td>
+                        <td><span t-esc="line.get('document_type')"/></td>
+                        <td><span t-esc="line.get('reference')"/></td>
+                        <td t-if="values.get('show_pc_cc')"><span t-esc="line.get('pc_cc')"/></td>
+                        <td t-if="values.get('other_currency')" class="text-end amount-cell">
+                            <span t-if="line.get('currency') != o.currency_id"
+                                  t-out="line.get('payment_currency_amount')"
+                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                        </td>
+                        <td class="text-end amount-cell">
+                            <span t-out="line.get('amount')"
+                                  t-options="{'widget': 'monetary', 'display_currency': line.get('currency')}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"/>
+                        <td t-att-colspan="(2 if values.get('show_pc_cc') else 1) + (1 if values.get('other_currency') else 0)" class="text-end">
+                            <strong>Due Amount</strong>
+                        </td>
+                        <td class="text-end amount-cell">
+                            <strong>
+                                <span t-out="values.get('difference')" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                            </strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </t>
+    </template>
 </odoo>
