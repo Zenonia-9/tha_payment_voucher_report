@@ -6,7 +6,7 @@
 
 Print payment vouchers and receipt vouchers from Odoo 19 payments.
 
-This module adds a dedicated voucher-printing workflow on `account.payment`. It supports outbound supplier payments and inbound customer receipts, validates that the payment is already posted, and provides voucher layouts in both A4 and A5 formats.
+This module adds a dedicated voucher-printing workflow on `account.payment`. It supports customer and vendor payments, validates that the payment is already posted, and provides voucher layouts in both A4 and A5 formats.
 
 ## Highlights
 
@@ -16,7 +16,6 @@ This module adds a dedicated voucher-printing workflow on `account.payment`. It 
   - **Customer Receipt Voucher**
 - Restricts printing to payments in **`in_process`** or **`paid`** state.
 - Routes to the correct voucher template based on:
-  - payment type
   - partner type
   - selected paper size
 - Includes separate **A4** and **A5** outputs.

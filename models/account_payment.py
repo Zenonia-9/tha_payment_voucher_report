@@ -27,18 +27,19 @@ class AccountPayment(models.Model):
         if paper_format not in ("a4", "a5"):
             raise UserError(_("Please select a valid paper format."))
 
-        report_by_payment = {
-            ("outbound", "supplier", "a4"): "tha_payment_voucher_report.action_report_vendor_payment_voucher_a4",
-            ("outbound", "supplier", "a5"): "tha_payment_voucher_report.action_report_vendor_payment_voucher_a5",
-            ("inbound", "customer", "a4"): "tha_payment_voucher_report.action_report_customer_receipt_voucher_a4",
-            ("inbound", "customer", "a5"): "tha_payment_voucher_report.action_report_customer_receipt_voucher_a5",
+        # Voucher type follows the business partner role on the payment.
+        # Odoo allows both inbound/outbound flows for customers and vendors.
+        report_by_partner = {
+            ("supplier", "a4"): "tha_payment_voucher_report.action_report_vendor_payment_voucher_a4",
+            ("supplier", "a5"): "tha_payment_voucher_report.action_report_vendor_payment_voucher_a5",
+            ("customer", "a4"): "tha_payment_voucher_report.action_report_customer_receipt_voucher_a4",
+            ("customer", "a5"): "tha_payment_voucher_report.action_report_customer_receipt_voucher_a5",
         }
-        report_ref = report_by_payment.get((self.payment_type, self.partner_type, paper_format))
+        report_ref = report_by_partner.get((self.partner_type, paper_format))
         if not report_ref:
             raise UserError(
                 _(
-                    "This voucher can only be printed for vendor payments "
-                    "and customer receipts."
+                    "This voucher can only be printed for customer or vendor payments."
                 )
             )
         return report_ref
