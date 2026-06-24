@@ -129,44 +129,44 @@
         <!-- Header: logo left, company address right -->
         <div t-attf-class="header o_company_#{company.id}_layout">
             <style>
-                .payment-voucher-header.payment-voucher-header-a5 {
+                .payment-voucher-header {
                     width: 100%;
                     overflow: hidden;
                 }
 
-                .payment-voucher-header-a5 .payment-voucher-logo-block {
+                .payment-voucher-logo-block {
                     float: left;
-                    width: 42%;
+                    width: 45%;
                     text-align: left;
                 }
 
-                .payment-voucher-header-a5 .payment-voucher-address-block {
+                .payment-voucher-address-block {
                     float: right;
-                    width: 58%;
+                    width: 55%;
                     text-align: right;
-                    font-size: 10px;
-                    line-height: 1.2;
+                    font-size: 11px;
+                    line-height: 1.25;
                     white-space: nowrap;
-                    padding-right: 2mm;
+                    padding-right: 6mm;
                 }
 
-                .payment-voucher-header-a5 .payment-voucher-address-block div,
-                .payment-voucher-header-a5 .payment-voucher-address-block span {
+                .payment-voucher-address-block div,
+                .payment-voucher-address-block span {
                     white-space: nowrap !important;
                 }
 
-                .payment-voucher-header-a5 .payment-voucher-logo {
-                    max-height: 52px;
+                .payment-voucher-logo {
+                    max-height: 65px;
                 }
 
-                .payment-voucher-header-a5 .payment-voucher-clear {
+                .payment-voucher-clear {
                     clear: both;
                 }
             </style>
 
             <t t-set="partner" t-value="company.partner_id"/>
 
-            <div class="payment-voucher-header payment-voucher-header-a5">
+            <div class="payment-voucher-header">
                 <div class="payment-voucher-logo-block">
                     <img t-if="company.logo"
                         class="payment-voucher-logo"

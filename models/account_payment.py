@@ -27,22 +27,30 @@ class AccountPayment(models.Model):
         if paper_format not in ("a4", "a5"):
             raise UserError(_("Please select a valid paper format."))
 
-        # Voucher type follows the business partner role on the payment.
-        # Odoo allows both inbound/outbound flows for customers and vendors.
-        report_by_partner = {
-            ("supplier", "a4"): "tha_payment_voucher_report.action_report_vendor_payment_voucher_a4",
-            ("supplier", "a5"): "tha_payment_voucher_report.action_report_vendor_payment_voucher_a5",
-            ("customer", "a4"): "tha_payment_voucher_report.action_report_customer_receipt_voucher_a4",
-            ("customer", "a5"): "tha_payment_voucher_report.action_report_customer_receipt_voucher_a5",
+        report_by_payment_type = {
+            ("outbound", "a4"): "tha_payment_voucher_report.action_report_vendor_payment_voucher_a4",
+            ("outbound", "a5"): "tha_payment_voucher_report.action_report_vendor_payment_voucher_a5",
+            ("inbound", "a4"): "tha_payment_voucher_report.action_report_customer_receipt_voucher_a4",
+            ("inbound", "a5"): "tha_payment_voucher_report.action_report_customer_receipt_voucher_a5",
         }
-        report_ref = report_by_partner.get((self.partner_type, paper_format))
+        report_ref = report_by_payment_type.get((self.payment_type, paper_format))
         if not report_ref:
             raise UserError(
                 _(
-                    "This voucher can only be printed for customer or vendor payments."
+                    "This voucher can only be printed for inbound or outbound payments."
                 )
             )
         return report_ref
+
+    def _get_payment_voucher_display_values(self):
+        self.ensure_one()
+        is_receipt = self.payment_type == "inbound"
+        return {
+            "title": _("Receipt Voucher") if is_receipt else _("Payment Voucher"),
+            "document_label": _("Receipt Voucher") if is_receipt else _("Payment Voucher"),
+            "amount_label": _("Receipt Amount") if is_receipt else _("Payment Amount"),
+            "partner_label": _("Customer") if self.partner_type == "customer" else _("Supplier"),
+        }
 
     def _get_payment_voucher_match_values(self):
         self.ensure_one()
