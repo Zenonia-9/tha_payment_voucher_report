@@ -10,7 +10,6 @@
                 <t t-call="tha_payment_voucher_report.payment_voucher_layout_a4">
                     <t t-set="o" t-value="o.with_context(lang=lang)"/>
                     <t t-set="values" t-value="o._get_payment_voucher_match_values()"/>
-                    <t t-set="display" t-value="o._get_payment_voucher_display_values()"/>
                     <style>
                         .page {
                             font-size: 14px;
@@ -49,9 +48,7 @@
 
                         <!-- HEADER -->
                         <div class="text-center mb-3">
-                            <h4 style="font-weight: bold; margin: 0;">
-                                <t t-out="display.get('title')"/>
-                            </h4>
+                            <h4 style="font-weight: bold; margin: 0;">Receipt Voucher</h4>
                         </div>
 
                         <!-- TOP INFO -->
@@ -60,27 +57,21 @@
                             <!-- LEFT -->
                             <div class="col-6">
                                 <div class="row mb-1">
-                                    <div class="col-5 fw-bold">
-                                        <t t-out="display.get('document_label')"/>
-                                    </div>
+                                    <div class="col-5 fw-bold">Receipt Voucher</div>
                                     <div class="col-7">
                                         <span t-field="o.name"/>
                                     </div>
                                 </div>
 
                                 <div class="row mb-1">
-                                    <div class="col-5 fw-bold">
-                                        <t t-out="display.get('partner_label')"/>
-                                    </div>
+                                    <div class="col-5 fw-bold">Customer</div>
                                     <div class="col-7">
                                         <span t-field="o.partner_id"/>
                                     </div>
                                 </div>
 
                                 <div class="row mb-1">
-                                    <div class="col-5 fw-bold">
-                                        <t t-out="display.get('amount_label')"/>
-                                    </div>
+                                    <div class="col-5 fw-bold">Receipt Amount</div>
                                     <div class="col-7">
                                         <span t-out="values.get('payment_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
                                     </div>
@@ -322,10 +313,9 @@
                 <t t-call="tha_payment_voucher_report.payment_voucher_layout_a5">
                     <t t-set="o" t-value="o.with_context(lang=lang)"/>
                     <t t-set="values" t-value="o._get_payment_voucher_match_values()"/>
-                    <t t-set="display" t-value="o._get_payment_voucher_display_values()"/>
                     <style>
                         .page {
-                            font-size: 11.5px;
+                            font-size: 11px;
                         }
 
                         .voucher-info .fw-bold {
@@ -347,9 +337,9 @@
 
                         .compact-table td,
                         .compact-table th {
-                            line-height: 1.15 !important;
-                            vertical-align: top;
-                            padding: 2px 4px !important;
+                            line-height: 1.25 !important;
+                            vertical-align: middle;
+                            padding: 2px 3px !important;
                             overflow-wrap: anywhere;
                         }
 
@@ -360,136 +350,80 @@
                         .compact-table tr {
                             height: auto !important;
                         }
-
-                        .voucher-meta-table,
-                        .voucher-signature-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-
-                        .voucher-meta-table td,
-                        .voucher-signature-table td {
-                            vertical-align: top;
-                        }
-
-                        .voucher-meta-side {
-                            width: 50%;
-                            padding-right: 4mm;
-                        }
-
-                        .voucher-meta-side:last-child {
-                            padding-right: 0;
-                            padding-left: 4mm;
-                        }
-
-                        .voucher-detail-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-
-                        .voucher-detail-table td {
-                            padding: 1px 0;
-                        }
-
-                        .voucher-detail-label {
-                            width: 34%;
-                            font-weight: 700;
-                            white-space: nowrap;
-                            padding-right: 4mm !important;
-                        }
-
-                        .voucher-detail-value {
-                            width: 66%;
-                            word-break: break-word;
-                        }
-
-                        .voucher-signature-title {
-                            font-weight: 700;
-                            text-align: center;
-                            padding-bottom: 12px !important;
-                        }
-
-                        .voucher-signature-line {
-                            border-bottom: 1px dotted black;
-                            height: 18px;
-                        }
                     </style>
-                    <div class="page">
+                    <div class="page" style="font-size: 12px;">
 
                         <!-- HEADER -->
                         <div class="text-center mb-2">
-                            <h4 style="font-weight: bold; margin: 0;">
-                                <t t-out="display.get('title')"/>
-                            </h4>
+                            <h4 style="font-weight: bold; margin: 0;">Receipt Voucher</h4>
                         </div>
 
                         <!-- TOP INFO -->
-                        <table class="voucher-meta-table mb-2">
-                            <tr>
-                                <td class="voucher-meta-side">
-                                    <table class="voucher-detail-table">
-                                        <tr>
-                                            <td class="voucher-detail-label">
-                                                <t t-out="display.get('document_label')"/>
-                                            </td>
-                                            <td class="voucher-detail-value">
-                                                <span t-field="o.name"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="voucher-detail-label">
-                                                <t t-out="display.get('partner_label')"/>
-                                            </td>
-                                            <td class="voucher-detail-value">
-                                                <span t-field="o.partner_id"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="voucher-detail-label">
-                                                <t t-out="display.get('amount_label')"/>
-                                            </td>
-                                            <td class="voucher-detail-value">
-                                                <span t-out="values.get('payment_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="voucher-detail-label">Journal</td>
-                                            <td class="voucher-detail-value">
-                                                <span t-field="o.journal_id"/>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                                <td class="voucher-meta-side">
-                                    <table class="voucher-detail-table">
-                                        <tr>
-                                            <td class="voucher-detail-label">Currency</td>
-                                            <td class="voucher-detail-value">
-                                                <span t-field="o.currency_id"/>
-                                            </td>
-                                        </tr>
-                                        <tr t-if="o.date">
-                                            <td class="voucher-detail-label">Payment Date</td>
-                                            <td class="voucher-detail-value">
-                                                <span t-field="o.date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
-                                            </td>
-                                        </tr>
-                                        <tr t-if="o.payment_method_id">
-                                            <td class="voucher-detail-label">Payment Method</td>
-                                            <td class="voucher-detail-value">
-                                                <span t-field="o.payment_method_id.name"/>
-                                            </td>
-                                        </tr>
-                                        <tr t-if="o.memo">
-                                            <td class="voucher-detail-label">Memo</td>
-                                            <td class="voucher-detail-value">
-                                                <span t-field="o.memo"/>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
+                        <div class="row mb-2 voucher-info">
+
+                            <!-- LEFT -->
+                            <div class="col-6 pr-2">
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Receipt Voucher</div>
+                                    <div class="col-7">
+                                        <span t-field="o.name"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Customer</div>
+                                    <div class="col-7">
+                                        <span t-field="o.partner_id"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Receipt Amount</div>
+                                    <div class="col-7">
+                                        <span t-out="values.get('payment_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Journal</div>
+                                    <div class="col-7">
+                                        <span t-field="o.journal_id"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT -->
+                            <div class="col-6">
+                                <div class="row mb-1">
+                                    <div class="col-5 fw-bold">Currency</div>
+                                    <div class="col-7">
+                                        <span t-field="o.currency_id"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.date">
+                                    <div class="col-5 fw-bold">Payment Date</div>
+                                    <div class="col-7">
+                                        <span t-field="o.date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.payment_method_id">
+                                    <div class="col-5 fw-bold">Payment Method</div>
+                                    <div class="col-7">
+                                        <span t-field="o.payment_method_id.name"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-1" t-if="o.memo">
+                                    <div class="col-5 fw-bold">Memo</div>
+                                    <div class="col-7">
+                                        <span t-field="o.memo"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
 
                         <t t-call="tha_payment_voucher_report.payment_voucher_match_table"/>
 
@@ -642,23 +576,32 @@
 
                         <!-- SIGNATURE -->
                         <div class="mt-4" style="page-break-inside: avoid;">
-                            <table class="voucher-signature-table">
-                                <tr>
-                                    <td class="voucher-signature-title">Approved By</td>
-                                    <td class="voucher-signature-title">Received By</td>
-                                    <td class="voucher-signature-title">Paid By</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 0 3mm 8px 0;"><div class="voucher-signature-line"/></td>
-                                    <td style="padding: 0 1.5mm 8px 1.5mm;"><div class="voucher-signature-line"/></td>
-                                    <td style="padding: 0 0 8px 3mm;"><div class="voucher-signature-line"/></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 0 3mm 0 0;"><div class="voucher-signature-line"/></td>
-                                    <td style="padding: 0 1.5mm;"><div class="voucher-signature-line"/></td>
-                                    <td style="padding: 0 0 0 3mm;"><div class="voucher-signature-line"/></td>
-                                </tr>
-                            </table>
+
+                            <!-- TITLES -->
+                            <div class="row text-center">
+                                <div class="col-4"><strong>Approved By</strong></div>
+                                <div class="col-4"><strong>Received By</strong></div>
+                                <div class="col-4"><strong>Paid By</strong></div>
+                            </div>
+
+                            <!-- SIGN LINE -->
+                            <div class="row mt-3">
+                                <t t-foreach="[1,2,3]" t-as="x">
+                                    <div class="col-4 px-3">
+                                        <div style="border-bottom: 1px dotted black; height: 20px;"/>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- NAME LINE -->
+                            <div class="row mt-3">
+                                <t t-foreach="[1,2,3]" t-as="x">
+                                    <div class="col-4 px-3">
+                                        <div style="border-bottom: 1px dotted black; height: 20px;"/>
+                                    </div>
+                                </t>
+                            </div>
+
                         </div>
 
                     </div>
