@@ -245,7 +245,7 @@
 
                     <style>
                         .page {
-                            font-size: 11px;
+                            font-size: 13px;
                         }
 
                         .voucher-info .fw-bold {

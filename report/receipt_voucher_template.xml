@@ -315,7 +315,7 @@
                     <t t-set="values" t-value="o._get_payment_voucher_match_values()"/>
                     <style>
                         .page {
-                            font-size: 11px;
+                            font-size: 13px;
                         }
 
                         .voucher-info .fw-bold {
