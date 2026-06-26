@@ -104,6 +104,13 @@ class AccountPayment(models.Model):
             payment_lines,
             company_currency,
         )
+        payment_display_amount, payment_display_currency = (
+            self._get_payment_voucher_display_amount(
+                payment_lines,
+                payment_currency,
+                company_currency,
+            )
+        )
         difference_company_amount = company_currency.round(
             payment_company_amount - matched_company_amount
         )
@@ -116,6 +123,8 @@ class AccountPayment(models.Model):
             "payment_currency": payment_currency,
             "matched_company_amount": matched_company_amount,
             "payment_company_amount": payment_company_amount,
+            "payment_display_amount": payment_display_amount,
+            "payment_display_currency": payment_display_currency,
             "difference_company_amount": difference_company_amount,
             "show_pc_cc": any(line["pc_cc"] for line in lines),
             "show_foreign_currency": any(
@@ -170,6 +179,27 @@ class AccountPayment(models.Model):
                 self.date,
             )
         )
+
+    def _get_payment_voucher_display_amount(
+        self,
+        payment_lines,
+        payment_currency,
+        company_currency,
+    ):
+        if payment_currency and payment_currency != company_currency:
+            foreign_amount = abs(
+                sum(
+                    payment_lines.filtered(
+                        lambda line: line.currency_id == payment_currency
+                    ).mapped("amount_currency")
+                )
+            )
+            if foreign_amount:
+                return payment_currency.round(foreign_amount), payment_currency
+        return self._get_payment_voucher_company_amount(
+            payment_lines,
+            company_currency,
+        ), company_currency
 
     def _get_payment_voucher_partial_currency_amount(self, line, partial, currency):
         if currency == self.company_id.currency_id:

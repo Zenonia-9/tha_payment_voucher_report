@@ -67,7 +67,7 @@
                                 <div class="row mb-1">
                                     <div class="col-5 fw-bold">Payment Amount</div>
                                     <div class="col-7">
-                                        <span t-out="values.get('payment_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
+                                        <span t-out="values.get('payment_display_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('payment_display_currency')}"/>
                                     </div>
                                 </div>
                                 <div class="row mb-1">
@@ -301,7 +301,7 @@
                                 <div class="row mb-1">
                                     <div class="col-5 fw-bold">Payment Amount</div>
                                     <div class="col-7">
-                                        <span t-out="values.get('payment_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
+                                        <span t-out="values.get('payment_display_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('payment_display_currency')}"/>
                                     </div>
                                 </div>
                                 <div class="row mb-1">
