@@ -33,7 +33,7 @@
                 .payment-voucher-address-block {
                     float: right;
                     width: 55%;
-                    text-align: right;
+                    text-align: left;
                     font-size: 12px;
                     line-height: 1.25;
                     white-space: nowrap;
@@ -73,22 +73,16 @@
                         <span t-esc="partner.street"/>
                     </div>
 
-                    <div t-if="partner.street2">
-                        <span t-esc="partner.street2"/>
-                    </div>
-
-                    <div t-if="partner.city or partner.state_id">
+                    <div t-if="partner.street2 or partner.zip or partner.city or partner.state_id or partner.country_id">
+                        <span t-if="partner.street2" t-esc="partner.street2"/>
+                        <span t-if="partner.street2 and (partner.zip or partner.city or partner.state_id or partner.country_id)">, </span>
+                        <span t-if="partner.zip" t-esc="partner.zip"/>
+                        <span t-if="partner.zip and (partner.city or partner.state_id or partner.country_id)">, </span>
                         <span t-if="partner.city" t-esc="partner.city"/>
-                        <span t-if="partner.city and partner.state_id"> </span>
+                        <span t-if="partner.city and (partner.state_id or partner.country_id)">, </span>
                         <span t-if="partner.state_id" t-esc="partner.state_id.name"/>
-                    </div>
-
-                    <div t-if="partner.zip">
-                        <span t-esc="partner.zip"/>
-                    </div>
-
-                    <div t-if="partner.country_id">
-                        <span t-esc="partner.country_id.name"/>
+                        <span t-if="partner.state_id and partner.country_id">, </span>
+                        <span t-if="partner.country_id" t-esc="partner.country_id.name"/>
                     </div>
                 </div>
 
@@ -143,7 +137,7 @@
                 .payment-voucher-address-block {
                     float: right;
                     width: 55%;
-                    text-align: right;
+                    text-align: left;
                     font-size: 11px;
                     line-height: 1.25;
                     white-space: nowrap;
@@ -183,22 +177,16 @@
                         <span t-esc="partner.street"/>
                     </div>
 
-                    <div t-if="partner.street2">
-                        <span t-esc="partner.street2"/>
-                    </div>
-
-                    <div t-if="partner.city or partner.state_id">
+                    <div t-if="partner.street2 or partner.zip or partner.city or partner.state_id or partner.country_id">
+                        <span t-if="partner.street2" t-esc="partner.street2"/>
+                        <span t-if="partner.street2 and (partner.zip or partner.city or partner.state_id or partner.country_id)">, </span>
+                        <span t-if="partner.zip" t-esc="partner.zip"/>
+                        <span t-if="partner.zip and (partner.city or partner.state_id or partner.country_id)">, </span>
                         <span t-if="partner.city" t-esc="partner.city"/>
-                        <span t-if="partner.city and partner.state_id"> </span>
+                        <span t-if="partner.city and (partner.state_id or partner.country_id)">, </span>
                         <span t-if="partner.state_id" t-esc="partner.state_id.name"/>
-                    </div>
-
-                    <div t-if="partner.zip">
-                        <span t-esc="partner.zip"/>
-                    </div>
-
-                    <div t-if="partner.country_id">
-                        <span t-esc="partner.country_id.name"/>
+                        <span t-if="partner.state_id and partner.country_id">, </span>
+                        <span t-if="partner.country_id" t-esc="partner.country_id.name"/>
                     </div>
                 </div>
 
