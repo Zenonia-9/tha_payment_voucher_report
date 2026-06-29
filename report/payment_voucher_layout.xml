@@ -162,7 +162,7 @@
                 }
 
                 .payment-voucher-logo {
-                    max-height: 65px;
+                    max-height: 80px;
                 }
 
                 .payment-voucher-clear {
@@ -242,7 +242,7 @@
                     <tr t-foreach="values.get('lines')" t-as="line">
                         <td><span t-esc="line_index + 1"/></td>
                         <td>
-                            <span t-out="line.get('date')" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                            <span t-esc="line.get('date') and line.get('date').strftime('%d-%b-%Y') or ''"/>
                         </td>
                         <td><span t-esc="line.get('document_number')"/></td>
                         <td><span t-esc="line.get('reference')"/></td>

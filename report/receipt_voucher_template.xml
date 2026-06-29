@@ -97,7 +97,7 @@
                                 <div class="row mb-1" t-if="o.date">
                                     <div class="col-5 fw-bold">Payment Date</div>
                                     <div class="col-7">
-                                        <span t-field="o.date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                        <span t-esc="o.date and o.date.strftime('%d-%b-%Y') or ''"/>
                                     </div>
                                 </div>
 
@@ -198,7 +198,7 @@
                                                 </td>
 
                                                 <td>
-                                                    <span t-field="invoice.invoice_date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                                    <span t-esc="invoice.invoice_date and invoice.invoice_date.strftime('%d-%b-%Y') or ''"/>
                                                 </td>
 
                                                 <td>
@@ -281,7 +281,7 @@
                             <div class="row mt-3">
                                 <t t-foreach="[1,2,3]" t-as="x">
                                     <div class="col-4 px-3">
-                                        <div style="border-bottom: 1px dotted black; height: 20px;"/>
+                                        <div style="border-bottom: 1px dotted black; height: 24px;"/>
                                     </div>
                                 </t>
                             </div>
@@ -290,7 +290,7 @@
                             <div class="row mt-3">
                                 <t t-foreach="[1,2,3]" t-as="x">
                                     <div class="col-4 px-3">
-                                        <div style="border-bottom: 1px dotted black; height: 20px;"/>
+                                        <div style="border-bottom: 1px dotted black; height: 24px;"/>
                                     </div>
                                 </t>
                             </div>
@@ -404,7 +404,7 @@
                                 <div class="row mb-1" t-if="o.date">
                                     <div class="col-5 fw-bold">Payment Date</div>
                                     <div class="col-7">
-                                        <span t-field="o.date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                        <span t-esc="o.date and o.date.strftime('%d-%b-%Y') or ''"/>
                                     </div>
                                 </div>
 
@@ -505,7 +505,7 @@
                                                 </td>
 
                                                 <td>
-                                                    <span t-field="invoice.invoice_date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                                    <span t-esc="invoice.invoice_date and invoice.invoice_date.strftime('%d-%b-%Y') or ''"/>
                                                 </td>
 
                                                 <td>
@@ -588,7 +588,7 @@
                             <div class="row mt-3">
                                 <t t-foreach="[1,2,3]" t-as="x">
                                     <div class="col-4 px-3">
-                                        <div style="border-bottom: 1px dotted black; height: 20px;"/>
+                                        <div style="border-bottom: 1px dotted black; height: 24px;"/>
                                     </div>
                                 </t>
                             </div>
@@ -597,7 +597,7 @@
                             <div class="row mt-3">
                                 <t t-foreach="[1,2,3]" t-as="x">
                                     <div class="col-4 px-3">
-                                        <div style="border-bottom: 1px dotted black; height: 20px;"/>
+                                        <div style="border-bottom: 1px dotted black; height: 24px;"/>
                                     </div>
                                 </t>
                             </div>
