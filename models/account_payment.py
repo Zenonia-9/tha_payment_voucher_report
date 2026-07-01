@@ -55,45 +55,56 @@ class AccountPayment(models.Model):
     def _get_payment_voucher_match_values(self):
         self.ensure_one()
 
-        sign = 1 if self.payment_type == "inbound" else -1
         payment_currency = self.currency_id
         company_currency = self.company_id.currency_id
         payment_lines = self.move_id.line_ids.filtered(
             lambda line: line.account_type in ("asset_receivable", "liability_payable")
         )
 
-        line_values_by_id = {}
+        line_values_by_key = {}
         for payment_line in payment_lines:
-            if payment_line.full_reconcile_id:
-                matched_lines = payment_line.full_reconcile_id.reconciled_line_ids
-                for matched_line in matched_lines - self.move_id.line_ids:
-                    if matched_line.account_id != payment_line.account_id:
-                        continue
-                    line_values_by_id[matched_line.id] = self._prepare_payment_voucher_match_line(
-                        matched_line,
-                        sign,
-                        company_currency,
-                    )
-                continue
-
             for partial in payment_line.matched_debit_ids + payment_line.matched_credit_ids:
                 matched_line = (
                     partial.debit_move_id
                     if partial.debit_move_id != payment_line
                     else partial.credit_move_id
                 )
-                if matched_line.move_id == self.move_id:
+                if (
+                    matched_line.move_id == self.move_id
+                    or matched_line.account_id != payment_line.account_id
+                ):
                     continue
-                line_values_by_id[matched_line.id] = self._prepare_payment_voucher_match_line(
+
+                line_values = self._prepare_payment_voucher_match_line(
                     matched_line,
-                    sign,
+                    payment_line,
                     company_currency,
                     partial=partial,
                 )
+                line_key = (line_values["row_type"], matched_line.move_id.id)
+                existing_values = line_values_by_key.get(line_key)
+                if existing_values:
+                    existing_values["amount_company"] = company_currency.round(
+                        existing_values["amount_company"] + line_values["amount_company"]
+                    )
+                    existing_values["amount_currency"] = line_values["line_currency"].round(
+                        existing_values["amount_currency"] + line_values["amount_currency"]
+                    )
+                    existing_values["sequence"] = min(
+                        existing_values["sequence"], line_values["sequence"]
+                    )
+                    existing_values["reference"] = self._merge_payment_voucher_references(
+                        existing_values["reference"],
+                        line_values["reference"],
+                    )
+                    continue
+
+                line_values_by_key[line_key] = line_values
 
         lines = sorted(
-            line_values_by_id.values(),
+            line_values_by_key.values(),
             key=lambda value: (
+                0 if value["row_type"] == "invoice" else 1,
                 value["date"] or self.date,
                 value["document_number"] or "",
                 value["sequence"],
@@ -135,15 +146,19 @@ class AccountPayment(models.Model):
     def _prepare_payment_voucher_match_line(
         self,
         line,
-        sign,
+        payment_line,
         company_currency,
         partial=None,
     ):
         move = line.move_id
+        sign = 1 if self.payment_type == "inbound" else -1
         amount_company = sign * line.balance
         line_currency = line.currency_id or company_currency
-        amount_currency = sign * (
-            line.amount_currency if line.currency_id else line.balance
+        amount_currency = sign * (line.amount_currency if line.currency_id else line.balance)
+        row_type = (
+            "invoice"
+            if move.move_type in self._get_payment_voucher_invoice_move_types()
+            else "adjustment"
         )
 
         if partial:
@@ -157,15 +172,28 @@ class AccountPayment(models.Model):
 
         return {
             "sequence": line.id,
+            "row_type": row_type,
             "date": move.invoice_date or move.date,
             "document_number": move.name,
             "reference": self._get_payment_voucher_line_reference(move, line),
             "pc_cc": self._get_payment_voucher_pc_cc(move),
             "company_currency": company_currency,
             "line_currency": line_currency,
-            "amount_company": amount_company,
-            "amount_currency": amount_currency,
+            "amount_company": company_currency.round(amount_company),
+            "amount_currency": line_currency.round(amount_currency),
         }
+
+    def _get_payment_voucher_invoice_move_types(self):
+        return ("out_invoice", "out_refund", "in_invoice", "in_refund")
+
+    def _merge_payment_voucher_references(self, left_reference, right_reference):
+        references = []
+        for reference in (left_reference, right_reference):
+            if not reference:
+                continue
+            if reference not in references:
+                references.append(reference)
+        return ", ".join(references)
 
     def _get_payment_voucher_company_amount(self, payment_lines, company_currency):
         payment_company_amount = abs(sum(payment_lines.mapped("balance")))
