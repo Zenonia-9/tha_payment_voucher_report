@@ -101,6 +101,10 @@ class AccountPayment(models.Model):
 
                 line_values_by_key[line_key] = line_values
 
+        for line_values in self._get_payment_voucher_adjustment_lines(company_currency):
+            line_key = (line_values["row_type"], line_values["sequence"])
+            line_values_by_key[line_key] = line_values
+
         lines = sorted(
             line_values_by_key.values(),
             key=lambda value: (
@@ -111,13 +115,9 @@ class AccountPayment(models.Model):
             ),
         )
         matched_company_amount = sum(line["amount_company"] for line in lines)
-        payment_company_amount = self._get_payment_voucher_company_amount(
-            payment_lines,
-            company_currency,
-        )
+        payment_company_amount = self._get_payment_voucher_company_amount(company_currency)
         payment_display_amount, payment_display_currency = (
             self._get_payment_voucher_display_amount(
-                payment_lines,
                 payment_currency,
                 company_currency,
             )
@@ -195,10 +195,13 @@ class AccountPayment(models.Model):
                 references.append(reference)
         return ", ".join(references)
 
-    def _get_payment_voucher_company_amount(self, payment_lines, company_currency):
-        payment_company_amount = abs(sum(payment_lines.mapped("balance")))
+    def _get_payment_voucher_company_amount(self, company_currency):
+        liquidity_lines = self.move_id.line_ids.filtered(
+            lambda line: line.account_id.account_type == "asset_cash"
+        )
+        payment_company_amount = abs(sum(liquidity_lines.mapped("balance")))
         if payment_company_amount:
-            return payment_company_amount
+            return company_currency.round(payment_company_amount)
         return company_currency.round(
             self.currency_id._convert(
                 self.amount,
@@ -210,24 +213,12 @@ class AccountPayment(models.Model):
 
     def _get_payment_voucher_display_amount(
         self,
-        payment_lines,
         payment_currency,
         company_currency,
     ):
         if payment_currency and payment_currency != company_currency:
-            foreign_amount = abs(
-                sum(
-                    payment_lines.filtered(
-                        lambda line: line.currency_id == payment_currency
-                    ).mapped("amount_currency")
-                )
-            )
-            if foreign_amount:
-                return payment_currency.round(foreign_amount), payment_currency
-        return self._get_payment_voucher_company_amount(
-            payment_lines,
-            company_currency,
-        ), company_currency
+            return payment_currency.round(self.amount), payment_currency
+        return self._get_payment_voucher_company_amount(company_currency), company_currency
 
     def _get_payment_voucher_partial_currency_amount(self, line, partial, currency):
         if currency == self.company_id.currency_id:
@@ -235,6 +226,39 @@ class AccountPayment(models.Model):
         if line == partial.debit_move_id:
             return abs(partial.debit_amount_currency)
         return abs(partial.credit_amount_currency)
+
+    def _get_payment_voucher_adjustment_lines(self, company_currency):
+        self.ensure_one()
+        if not self.move_id:
+            return []
+
+        adjustment_lines = []
+        for line in self.move_id.line_ids.filtered(
+            lambda move_line: (
+                move_line.account_id.account_type
+                not in ("asset_cash", "asset_receivable", "liability_payable")
+                and not company_currency.is_zero(move_line.balance)
+            )
+        ):
+            line_currency = line.currency_id or company_currency
+            raw_amount_currency = (
+                line.amount_currency
+                if line.currency_id
+                else line.balance
+            )
+            adjustment_lines.append({
+                "sequence": line.id,
+                "row_type": "adjustment",
+                "date": self.date,
+                "document_number": self.name or self.move_id.name,
+                "reference": line.name or line.account_id.display_name,
+                "pc_cc": "",
+                "company_currency": company_currency,
+                "line_currency": line_currency,
+                "amount_company": company_currency.round(abs(line.balance)),
+                "amount_currency": line_currency.round(abs(raw_amount_currency)),
+            })
+        return adjustment_lines
 
     def _get_payment_voucher_line_reference(self, move, line):
         if "vendor_ref" in move._fields and move.vendor_ref:
