@@ -149,6 +149,17 @@ class AccountPayment(models.Model):
 
                 line_values_by_key[line_key] = line_values
 
+        # Some payment flows keep the selected bills on the payment without
+        # creating a payment journal entry or partial reconciliations.  Those
+        # explicit links identify the documents for this voucher; unlike a
+        # bill's reconciliation history, they cannot introduce old payments.
+        if not direct_partials:
+            for line_values in self._get_payment_voucher_linked_move_lines(
+                company_currency
+            ):
+                line_key = (line_values["row_type"], line_values["document_number"])
+                line_values_by_key.setdefault(line_key, line_values)
+
         for line_values in self._get_payment_voucher_adjustment_lines(company_currency):
             line_key = (line_values["row_type"], line_values["sequence"])
             line_values_by_key[line_key] = line_values
@@ -195,6 +206,86 @@ class AccountPayment(models.Model):
                 line["line_currency"] != company_currency for line in lines
             ),
         }
+
+    def _get_payment_voucher_linked_move_lines(self, company_currency):
+        """Build voucher lines from the payment's explicit bill/invoice links.
+
+        This is intentionally a fallback for payments without partial
+        reconciliations.  It uses only documents selected on this payment, not
+        the documents' full partial-reconciliation history.
+        """
+        linked_moves = self.env["account.move"]
+        for field_name in (
+            "invoice_ids",
+            "reconciled_invoice_ids",
+            "reconciled_bill_ids",
+        ):
+            if field_name in self._fields:
+                linked_moves |= self[field_name]
+        linked_moves = linked_moves.filtered(
+            lambda move: (
+                move.move_type in self._get_payment_voucher_invoice_move_types()
+            )
+        )
+        if not linked_moves:
+            return []
+
+        move_details = []
+        for move in linked_moves:
+            payment_line = move.line_ids.filtered(
+                lambda line: line.account_type in (
+                    "asset_receivable",
+                    "liability_payable",
+                )
+            )[:1]
+            if not payment_line:
+                continue
+            open_company_amount = abs(move.amount_residual_signed)
+            if company_currency.is_zero(open_company_amount):
+                open_company_amount = abs(payment_line.balance)
+            move_details.append((move, payment_line, open_company_amount))
+        if not move_details:
+            return []
+
+        payment_company_amount = self._get_payment_voucher_company_amount(
+            company_currency
+        )
+        total_open_company_amount = sum(detail[2] for detail in move_details)
+        remaining_company_amount = payment_company_amount
+        linked_lines = []
+        for index, (move, payment_line, open_company_amount) in enumerate(
+            move_details
+        ):
+            if index == len(move_details) - 1 or not total_open_company_amount:
+                amount_company = remaining_company_amount
+            else:
+                amount_company = company_currency.round(
+                    payment_company_amount
+                    * open_company_amount
+                    / total_open_company_amount
+                )
+                remaining_company_amount -= amount_company
+
+            line_values = self._prepare_payment_voucher_match_line(
+                payment_line,
+                payment_line,
+                company_currency,
+            )
+            line_currency = line_values["line_currency"]
+            amount_currency = amount_company
+            if line_currency != company_currency:
+                open_currency_amount = abs(move.amount_residual) or abs(
+                    payment_line.amount_currency
+                )
+                amount_currency = open_currency_amount
+                if open_company_amount:
+                    amount_currency *= amount_company / open_company_amount
+            line_values.update({
+                "amount_company": company_currency.round(amount_company),
+                "amount_currency": line_currency.round(amount_currency),
+            })
+            linked_lines.append(line_values)
+        return linked_lines
 
     def _prepare_payment_voucher_match_line(
         self,
