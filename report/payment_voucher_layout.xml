@@ -1,275 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="payment_voucher_layout_a4">
-        <t t-if="not o" t-set="o" t-value="doc"/>
-
-        <!-- Resolve company -->
-        <t t-if="not company">
-            <t t-if="company_id">
-                <t t-set="company" t-value="company_id"/>
-            </t>
-            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
-                <t t-set="company" t-value="o.company_id.sudo()"/>
-            </t>
-            <t t-else="">
-                <t t-set="company" t-value="res_company"/>
-            </t>
-        </t>
-
-        <!-- Header: logo left, company address right -->
-        <div t-attf-class="header o_company_#{company.id}_layout">
-            <style>
-                .payment-voucher-header {
-                    width: 100%;
-                    overflow: hidden;
-                }
-
-                .payment-voucher-logo-block {
-                    float: left;
-                    width: 45%;
-                    text-align: left;
-                }
-
-                .payment-voucher-address-block {
-                    float: right;
-                    width: 55%;
-                    text-align: right;
-                    font-size: 12px;
-                    line-height: 1.25;
-                    white-space: nowrap;
-                    padding-right: 6mm;
-                }
-
-                .payment-voucher-address-content {
-                    display: inline-block;
-                    text-align: left;
-                }
-
-                .payment-voucher-address-block div,
-                .payment-voucher-address-block span {
-                    white-space: nowrap !important;
-                }
-
-                .payment-voucher-logo {
-                    max-height: 80px;
-                }
-
-                .payment-voucher-clear {
-                    clear: both;
-                }
-            </style>
-
-            <t t-set="partner" t-value="company.partner_id"/>
-
-            <div class="payment-voucher-header">
-                <div class="payment-voucher-logo-block">
-                    <img t-if="company.logo"
-                        class="payment-voucher-logo"
-                        t-att-src="image_data_uri(company.logo)"
-                        alt="Logo"/>
-                </div>
-
-                <div class="payment-voucher-address-block">
-                    <div class="payment-voucher-address-content">
-                        <div t-if="company.name">
-                            <span t-esc="company.name"/>
-                        </div>
-
-                        <div t-if="partner.street">
-                            <span t-esc="partner.street"/>
-                        </div>
-
-                        <div t-if="partner.street2 or partner.zip or partner.city or partner.state_id or partner.country_id">
-                            <span t-if="partner.street2" t-esc="partner.street2"/>
-                            <span t-if="partner.street2 and (partner.zip or partner.city or partner.state_id or partner.country_id)">, </span>
-                            <span t-if="partner.zip" t-esc="partner.zip"/>
-                            <span t-if="partner.zip and (partner.city or partner.state_id or partner.country_id)">, </span>
-                            <span t-if="partner.city" t-esc="partner.city"/>
-                            <span t-if="partner.city and (partner.state_id or partner.country_id)">, </span>
-                            <span t-if="partner.state_id" t-esc="partner.state_id.name"/>
-                            <span t-if="partner.state_id and partner.country_id">, </span>
-                            <span t-if="partner.country_id" t-esc="partner.country_id.name"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="payment-voucher-clear"/>
-            </div>
-        </div>
-
-        <!-- Body -->
-        <div t-attf-class="article o_report_layout_standard o_table_standard o_company_#{company.id}_layout"
-             t-att-data-oe-model="o and o._name"
-             t-att-data-oe-id="o and o.id"
-             t-att-data-oe-lang="o and o.env.context.get('lang')">
-            <t t-out="0"/>
-        </div>
-
-        <!-- Footer -->
-        <div t-attf-class="footer o_company_#{company.id}_layout">
-            <div class="o_footer_content"/>
-        </div>
-    </template>
-
-    <template id="payment_voucher_layout_a5">
-        <t t-if="not o" t-set="o" t-value="doc"/>
-
-        <!-- Resolve company -->
-        <t t-if="not company">
-            <t t-if="company_id">
-                <t t-set="company" t-value="company_id"/>
-            </t>
-            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
-                <t t-set="company" t-value="o.company_id.sudo()"/>
-            </t>
-            <t t-else="">
-                <t t-set="company" t-value="res_company"/>
-            </t>
-        </t>
-
-        <!-- Header: logo left, company address right -->
-        <div t-attf-class="header o_company_#{company.id}_layout">
-            <style>
-                .payment-voucher-header {
-                    width: 100%;
-                    overflow: hidden;
-                }
-
-                .payment-voucher-logo-block {
-                    float: left;
-                    width: 45%;
-                    text-align: left;
-                }
-
-                .payment-voucher-address-block {
-                    float: right;
-                    width: 55%;
-                    text-align: right;
-                    font-size: 11px;
-                    line-height: 1.25;
-                    white-space: nowrap;
-                    padding-right: 6mm;
-                }
-
-                .payment-voucher-address-content {
-                    display: inline-block;
-                    text-align: left;
-                }
-
-                .payment-voucher-address-block div,
-                .payment-voucher-address-block span {
-                    white-space: nowrap !important;
-                }
-
-                .payment-voucher-logo {
-                    max-height: 80px;
-                }
-
-                .payment-voucher-clear {
-                    clear: both;
-                }
-            </style>
-
-            <t t-set="partner" t-value="company.partner_id"/>
-
-            <div class="payment-voucher-header">
-                <div class="payment-voucher-logo-block">
-                    <img t-if="company.logo"
-                        class="payment-voucher-logo"
-                        t-att-src="image_data_uri(company.logo)"
-                        alt="Logo"/>
-                </div>
-
-                <div class="payment-voucher-address-block">
-                    <div class="payment-voucher-address-content">
-                        <div t-if="company.name">
-                            <span t-esc="company.name"/>
-                        </div>
-
-                        <div t-if="partner.street">
-                            <span t-esc="partner.street"/>
-                        </div>
-
-                        <div t-if="partner.street2 or partner.zip or partner.city or partner.state_id or partner.country_id">
-                            <span t-if="partner.street2" t-esc="partner.street2"/>
-                            <span t-if="partner.street2 and (partner.zip or partner.city or partner.state_id or partner.country_id)">, </span>
-                            <span t-if="partner.zip" t-esc="partner.zip"/>
-                            <span t-if="partner.zip and (partner.city or partner.state_id or partner.country_id)">, </span>
-                            <span t-if="partner.city" t-esc="partner.city"/>
-                            <span t-if="partner.city and (partner.state_id or partner.country_id)">, </span>
-                            <span t-if="partner.state_id" t-esc="partner.state_id.name"/>
-                            <span t-if="partner.state_id and partner.country_id">, </span>
-                            <span t-if="partner.country_id" t-esc="partner.country_id.name"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="payment-voucher-clear"/>
-            </div>
-        </div>
-
-        <!-- Body -->
-        <div t-attf-class="article o_report_layout_standard o_table_standard o_company_#{company.id}_layout"
-             t-att-data-oe-model="o and o._name"
-             t-att-data-oe-id="o and o.id"
-             t-att-data-oe-lang="o and o.env.context.get('lang')">
-            <t t-out="0"/>
-        </div>
-
-        <!-- Footer -->
-        <div t-attf-class="footer o_company_#{company.id}_layout">
-            <div class="o_footer_content"/>
-        </div>
-    </template>
-
     <template id="payment_voucher_match_table">
         <t t-if="values.get('display_match_lines')">
-            <table name="payment_voucher_match_lines" class="table table-borderless compact-table">
+            <table t-attf-style="width: 100%; border-collapse: collapse; font-size: #{font_size};">
                 <thead>
                     <tr>
-                        <th style="width: 8mm;">No</th>
-                        <th>Date</th>
-                        <th>Document</th>
-                        <th>Reference</th>
-                        <th t-if="values.get('show_pc_cc')" style="width: 15mm;">PC/CC</th>
-                        <th t-if="values.get('show_foreign_currency')" class="text-end">
-                            Amount in Currency
-                        </th>
-                        <th class="text-end">Amount</th>
+                        <th style="border: 1px solid #000; padding: 6px; width: 5%; text-align: center;">No.</th>
+                        <th style="border: 1px solid #000; padding: 6px; width: 14%; text-align: center;">Date</th>
+                        <th style="border: 1px solid #000; padding: 6px; width: 22%; text-align: center;">Document</th>
+                        <th style="border: 1px solid #000; padding: 6px; text-align: center;">Reference</th>
+                        <th t-if="values.get('show_pc_cc')" style="border: 1px solid #000; padding: 6px; width: 12%; text-align: center;">PC/CC</th>
+                        <th t-if="values.get('show_foreign_currency')" style="border: 1px solid #000; padding: 6px; width: 16%; text-align: center;">Amount in Currency</th>
+                        <th style="border: 1px solid #000; padding: 6px; width: 16%; text-align: center;">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr t-foreach="values.get('lines')" t-as="line">
-                        <td><span t-esc="line_index + 1"/></td>
-                        <td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                            <span t-esc="line_index + 1"/>
+                        </td>
+                        <td style="border: 1px solid #000; padding: 6px; white-space: nowrap;">
                             <span t-esc="line.get('date') and line.get('date').strftime('%d-%b-%Y') or ''"/>
                         </td>
-                        <td><span t-esc="line.get('document_number')"/></td>
-                        <td><span t-esc="line.get('reference')"/></td>
-                        <td t-if="values.get('show_pc_cc')"><span t-esc="line.get('pc_cc')"/></td>
-                        <td t-if="values.get('show_foreign_currency')" class="text-end amount-cell">
+                        <td style="border: 1px solid #000; padding: 6px;">
+                            <span t-esc="line.get('document_number')"/>
+                        </td>
+                        <td style="border: 1px solid #000; padding: 6px; overflow-wrap: anywhere;">
+                            <span t-esc="line.get('reference')"/>
+                        </td>
+                        <td t-if="values.get('show_pc_cc')" style="border: 1px solid #000; padding: 6px;">
+                            <span t-esc="line.get('pc_cc')"/>
+                        </td>
+                        <td t-if="values.get('show_foreign_currency')" style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">
                             <span t-if="line.get('line_currency') != values.get('company_currency')"
                                   t-out="line.get('amount_currency')"
                                   t-options="{'widget': 'monetary', 'display_currency': line.get('line_currency')}"/>
                         </td>
-                        <td class="text-end amount-cell">
+                        <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">
                             <span t-out="line.get('amount_company')"
                                   t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
                         </td>
                     </tr>
-                    <tr>
-                        <td colspan="3"/>
-                        <td t-att-colspan="(2 if values.get('show_pc_cc') else 1) + (1 if values.get('show_foreign_currency') else 0)" class="text-end">
-                            <strong>Due Amount</strong>
-                        </td>
-                        <td class="text-end amount-cell">
-                            <strong>
-                                <span t-out="values.get('difference_company_amount')" t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
-                            </strong>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
+
+            <table t-attf-style="width: 40%; margin-left: auto; border-collapse: collapse; margin-top: 18px; font-size: #{font_size};">
+                <tr>
+                    <td style="border: 1px solid #000; padding: 6px;">
+                        <strong>Due Amount</strong>
+                    </td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">
+                        <strong>
+                            <span t-out="values.get('difference_company_amount')"
+                                  t-options="{'widget': 'monetary', 'display_currency': values.get('company_currency')}"/>
+                        </strong>
+                    </td>
+                </tr>
+            </table>
+        </t>
+    </template>
+
+    <template id="ytk_voucher_body">
+        <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or o.company_id.partner_id.lang)"/>
+        <t t-set="display_values" t-value="o._get_payment_voucher_display_values()"/>
+        <t t-set="values" t-value="o._get_payment_voucher_match_values()"/>
+        <t t-set="letterhead" t-value="o.env.ref('tha_payment_voucher_report.attachment_ytk_voucher_header', raise_if_not_found=False)"/>
+
+        <t t-call="web.basic_layout">
+            <div class="page"
+                 t-att-style="'position: relative; font-size: %s; height: %s; min-height: %s; padding-bottom: 0; overflow: hidden;' % (font_size, page_height, page_height)">
+                <t t-if="letterhead and letterhead.datas">
+                    <img t-att-src="image_data_uri(letterhead.datas)"
+                         style="position: absolute; top: 0; left: 0; width: 100%; height: auto; z-index: 0;"
+                         alt="YTK Header"/>
+                </t>
+
+                <div t-att-style="'position: relative; z-index: 1; padding-top: %s;' % content_top_padding">
+                    <div style="margin-bottom: 18px;">
+                        <h3 style="margin: 0; font-weight: bold;">
+                            <span t-esc="display_values.get('title')"/>
+                        </h3>
+                    </div>
+
+                    <table t-attf-style="width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: #{font_size}; line-height: 1.6;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: top; border: 1px solid #000; padding: 7px;">
+                                <strong t-esc="display_values.get('partner_label') + ':'"/>
+                                <span t-esc="o.partner_id.display_name"/><br/>
+
+                                <strong t-esc="display_values.get('document_label') + ':'"/>
+                                <span t-field="o.name"/><br/>
+
+                                <strong t-esc="display_values.get('amount_label') + ':'"/>
+                                <span t-out="values.get('payment_display_amount')"
+                                      t-options="{'widget': 'monetary', 'display_currency': values.get('payment_display_currency')}"/><br/>
+
+                                <strong>Journal:</strong>
+                                <span t-field="o.journal_id"/>
+                            </td>
+
+                            <td style="width: 50%; vertical-align: top; border: 1px solid #000; padding: 7px;">
+                                <strong>Currency:</strong>
+                                <span t-field="o.currency_id"/><br/>
+
+                                <strong>Payment Date:</strong>
+                                <span t-esc="o.date and o.date.strftime('%d-%b-%Y') or ''"/><br/>
+
+                                <strong>Payment Method:</strong>
+                                <span t-if="o.payment_method_id" t-field="o.payment_method_id.name"/><br/>
+
+                                <strong>Memo:</strong>
+                                <span t-if="o.memo" t-field="o.memo"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <t t-call="tha_payment_voucher_report.payment_voucher_match_table"/>
+                </div>
+
+                <div t-attf-style="position: absolute; left: 0; right: 0; bottom: #{signature_bottom}; width: 100%; z-index: 2; page-break-inside: avoid;">
+                    <table t-attf-style="width: 100%; text-align: center; border-collapse: collapse; font-size: #{font_size};">
+                        <tr>
+                            <td style="width: 33.33%; vertical-align: top; border: none;">
+                                <strong>Approved By:</strong>
+                                <div style="margin-top: 45px;">Sign ................................</div>
+                                <div style="margin-top: 15px;">Name ................................</div>
+                            </td>
+                            <td style="width: 33.33%; vertical-align: top; border: none;">
+                                <strong>Received By:</strong>
+                                <div style="margin-top: 45px;">Sign ................................</div>
+                                <div style="margin-top: 15px;">Name ................................</div>
+                            </td>
+                            <td style="width: 33.33%; vertical-align: top; border: none;">
+                                <strong>Paid By:</strong>
+                                <div style="margin-top: 45px;">Sign ................................</div>
+                                <div style="margin-top: 15px;">Name ................................</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="position: absolute; left: 0; right: 0; bottom: 0mm; width: 100%; z-index: 2; text-align: center; font-size: 12px; color: #333; page-break-inside: avoid;">
+                    <div style="border-top: 1px dotted #000; width: 100%; height: 1px; margin: 0 0 6px 0;"/>
+                    <div><strong>YGN Office</strong></div>
+                    <div>Ph: 09 765488330, 09 765488331</div>
+                </div>
+            </div>
         </t>
     </template>
 </odoo>

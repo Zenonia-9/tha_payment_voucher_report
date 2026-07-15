@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="attachment_ytk_voucher_header" model="ir.attachment">
+            <field name="name">ytk_header.png</field>
+            <field name="type">binary</field>
+            <field name="datas" type="base64" file="tha_payment_voucher_report/static/src/image/ytk_header.png"/>
+            <field name="mimetype">image/png</field>
+        </record>
+    </data>
+</odoo>
