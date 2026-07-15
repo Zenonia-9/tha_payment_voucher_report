@@ -60,6 +60,8 @@ class AccountPayment(models.Model):
         payment_lines = self.move_id.line_ids.filtered(
             lambda line: line.account_type in ("asset_receivable", "liability_payable")
         )
+        direct_partials = self.env["account.partial.reconcile"]
+        direct_matched_lines = self.env["account.move.line"]
 
         line_values_by_key = {}
         for payment_line in payment_lines:
@@ -75,6 +77,8 @@ class AccountPayment(models.Model):
                 ):
                     continue
 
+                direct_partials |= partial
+                direct_matched_lines |= matched_line
                 line_values = self._prepare_payment_voucher_match_line(
                     matched_line,
                     payment_line,
@@ -101,20 +105,69 @@ class AccountPayment(models.Model):
 
                 line_values_by_key[line_key] = line_values
 
+        reconcile_batch_partials = self._get_payment_voucher_reconcile_batch_partials(
+            direct_partials
+        )
+        for partial in reconcile_batch_partials:
+            for reconcile_line in partial.debit_move_id | partial.credit_move_id:
+                if (
+                    reconcile_line.move_id == self.move_id
+                    or reconcile_line in direct_matched_lines
+                    or reconcile_line.move_id.origin_payment_id
+                    or reconcile_line.account_id not in payment_lines.account_id
+                ):
+                    continue
+
+                payment_line = payment_lines.filtered(
+                    lambda line: line.account_id == reconcile_line.account_id
+                )[:1]
+                line_values = self._prepare_payment_voucher_match_line(
+                    reconcile_line,
+                    payment_line,
+                    company_currency,
+                    partial=partial,
+                )
+                line_values["row_type"] = "reconcile"
+                line_values["include_in_payment_total"] = False
+                line_key = (line_values["row_type"], reconcile_line.move_id.id)
+                existing_values = line_values_by_key.get(line_key)
+                if existing_values:
+                    existing_values["amount_company"] = company_currency.round(
+                        existing_values["amount_company"] + line_values["amount_company"]
+                    )
+                    existing_values["amount_currency"] = line_values["line_currency"].round(
+                        existing_values["amount_currency"] + line_values["amount_currency"]
+                    )
+                    existing_values["sequence"] = min(
+                        existing_values["sequence"], line_values["sequence"]
+                    )
+                    existing_values["reference"] = self._merge_payment_voucher_references(
+                        existing_values["reference"],
+                        line_values["reference"],
+                    )
+                    continue
+
+                line_values_by_key[line_key] = line_values
+
         for line_values in self._get_payment_voucher_adjustment_lines(company_currency):
             line_key = (line_values["row_type"], line_values["sequence"])
             line_values_by_key[line_key] = line_values
 
+        row_type_order = {"invoice": 0, "reconcile": 1, "adjustment": 2}
         lines = sorted(
             line_values_by_key.values(),
             key=lambda value: (
-                0 if value["row_type"] == "invoice" else 1,
+                row_type_order.get(value["row_type"], 3),
                 value["date"] or self.date,
                 value["document_number"] or "",
                 value["sequence"],
             ),
         )
-        matched_company_amount = sum(line["amount_company"] for line in lines)
+        matched_company_amount = sum(
+            line["amount_company"]
+            for line in lines
+            if line.get("include_in_payment_total", True)
+        )
         payment_company_amount = self._get_payment_voucher_company_amount(company_currency)
         payment_display_amount, payment_display_currency = (
             self._get_payment_voucher_display_amount(
@@ -181,7 +234,52 @@ class AccountPayment(models.Model):
             "line_currency": line_currency,
             "amount_company": company_currency.round(amount_company),
             "amount_currency": line_currency.round(amount_currency),
+            "include_in_payment_total": True,
         }
+
+    def _get_payment_voucher_reconcile_batch_partials(self, direct_partials):
+        """Return only partials created in the current payment's reconcile batches."""
+        relevant_partials = direct_partials
+        for create_date in set(direct_partials.mapped("create_date")):
+            if not create_date:
+                continue
+
+            batch_partials = direct_partials.filtered(
+                lambda partial: partial.create_date == create_date
+            )
+            pending_lines = batch_partials.debit_move_id | batch_partials.credit_move_id
+            visited_lines = self.env["account.move.line"]
+
+            while pending_lines:
+                current_lines = pending_lines - visited_lines
+                if not current_lines:
+                    break
+                visited_lines |= current_lines
+                current_lines = current_lines.filtered(
+                    lambda line: (
+                        line.move_id == self.move_id
+                        or not line.move_id.origin_payment_id
+                    )
+                )
+                if not current_lines:
+                    break
+
+                attached_partials = (
+                    current_lines.matched_debit_ids
+                    | current_lines.matched_credit_ids
+                ).filtered(lambda partial: partial.create_date == create_date)
+                new_partials = attached_partials - batch_partials
+                if not new_partials:
+                    break
+
+                batch_partials |= new_partials
+                pending_lines = (
+                    new_partials.debit_move_id | new_partials.credit_move_id
+                )
+
+            relevant_partials |= batch_partials
+
+        return relevant_partials
 
     def _get_payment_voucher_invoice_move_types(self):
         return ("out_invoice", "out_refund", "in_invoice", "in_refund")
