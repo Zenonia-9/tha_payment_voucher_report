@@ -6,7 +6,7 @@
                 <t t-call="tha_payment_voucher_report.tpc_voucher_body">
                     <t t-set="font_size" t-value="'13px'"/>
                     <t t-set="page_height" t-value="'340mm'"/>
-                    <t t-set="content_top_padding" t-value="'155px'"/>
+                    <t t-set="content_top_padding" t-value="'180px'"/>
                     <t t-set="signature_bottom" t-value="'30mm'"/>
                 </t>
             </t>
@@ -17,9 +17,9 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="tha_payment_voucher_report.tpc_voucher_body">
-                    <t t-set="font_size" t-value="'9px'"/>
+                    <t t-set="font_size" t-value="'13px'"/>
                     <t t-set="page_height" t-value="'235mm'"/>
-                    <t t-set="content_top_padding" t-value="'105px'"/>
+                    <t t-set="content_top_padding" t-value="'125px'"/>
                     <t t-set="signature_bottom" t-value="'23mm'"/>
                 </t>
             </t>

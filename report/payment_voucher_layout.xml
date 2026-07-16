@@ -139,12 +139,6 @@
                         </tr>
                     </table>
                 </div>
-
-                <div style="position: absolute; left: 0; right: 0; bottom: 0mm; width: 100%; z-index: 2; text-align: center; font-size: 12px; color: #333; page-break-inside: avoid;">
-                    <div style="border-top: 1px dotted #000; width: 100%; height: 1px; margin: 0 0 6px 0;"/>
-                    <div><strong>YGN Office</strong></div>
-                    <div>Ph: 09 765488330, 09 765488331</div>
-                </div>
             </div>
         </t>
     </template>
