@@ -107,6 +107,9 @@ class AccountPayment(models.Model):
 
         reconcile_batch_partials = self._get_payment_voucher_reconcile_batch_partials(
             direct_partials
+        ) | self._get_payment_voucher_direct_reversal_partials(
+            direct_matched_lines,
+            direct_partials,
         )
         for partial in reconcile_batch_partials:
             for reconcile_line in partial.debit_move_id | partial.credit_move_id:
@@ -313,6 +316,41 @@ class AccountPayment(models.Model):
             relevant_partials |= batch_partials
 
         return relevant_partials
+
+    def _get_payment_voucher_direct_reversal_partials(
+        self,
+        direct_matched_lines,
+        direct_partials,
+    ):
+        """Return invoice/refund partials directly attached to payment-matched lines.
+
+        A refund can be reconciled against a bill before its remaining balance is
+        paid. That bill/refund partial belongs on the voucher even though it was
+        not created in the later payment's reconcile batch. Restrict the lookup
+        to the directly matched document and its invoice/refund counterpart so
+        unrelated historical payment chains remain excluded.
+        """
+        reversal_partials = self.env["account.partial.reconcile"]
+        latest_direct_create_date = max(direct_partials.mapped("create_date"), default=False)
+        for matched_line in direct_matched_lines:
+            for partial in matched_line.matched_debit_ids + matched_line.matched_credit_ids:
+                if (
+                    latest_direct_create_date
+                    and partial.create_date
+                    and partial.create_date > latest_direct_create_date
+                ):
+                    continue
+                counterpart_line = (
+                    partial.debit_move_id
+                    if partial.debit_move_id != matched_line
+                    else partial.credit_move_id
+                )
+                if self._is_payment_voucher_invoice_reversal_pair(
+                    matched_line.move_id,
+                    counterpart_line.move_id,
+                ):
+                    reversal_partials |= partial
+        return reversal_partials
 
     def _get_payment_voucher_invoice_move_types(self):
         return ("out_invoice", "out_refund", "in_invoice", "in_refund")
