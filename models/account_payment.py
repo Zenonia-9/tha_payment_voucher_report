@@ -131,34 +131,40 @@ class AccountPayment(models.Model):
                     partial=partial,
                 )
                 line_values["row_type"] = "reconcile"
-                direct_line = (
+                if self._get_payment_voucher_line_values_for_move(
+                    line_values_by_key,
+                    reconcile_line.move_id.id,
+                ):
+                    continue
+
+                counterpart_line = (
                     (partial.debit_move_id | partial.credit_move_id) - reconcile_line
-                ).filtered(lambda line: line in direct_matched_lines)[:1]
-                direct_line_values = direct_line and line_values_by_key.get(
-                    ("invoice", direct_line.move_id.id)
+                )[:1]
+                counterpart_line_values = self._get_payment_voucher_line_values_for_move(
+                    line_values_by_key,
+                    counterpart_line.move_id.id,
                 )
                 if (
-                    direct_line_values
+                    counterpart_line_values
                     and self._is_payment_voucher_invoice_reversal_pair(
-                        direct_line.move_id,
+                        counterpart_line.move_id,
                         reconcile_line.move_id,
                     )
                 ):
-                    # A refund/credit note reconciled in the same batch reduces the
-                    # document balance before the payment is applied. Show that
-                    # reduction explicitly while increasing the paid document row,
-                    # so the voucher rows still net to the actual payment amount.
-                    direct_line_values["amount_company"] = company_currency.round(
-                        direct_line_values["amount_company"]
+                    # Expand the already displayed document by the linked
+                    # bill/refund amount while retaining the counterpart as a
+                    # separate row. This also supports multi-step reversal chains.
+                    counterpart_line_values["amount_company"] = company_currency.round(
+                        counterpart_line_values["amount_company"]
                         - line_values["amount_company"]
                     )
                     if (
-                        direct_line_values["line_currency"]
+                        counterpart_line_values["line_currency"]
                         == line_values["line_currency"]
                     ):
-                        direct_line_values["amount_currency"] = (
-                            direct_line_values["line_currency"].round(
-                                direct_line_values["amount_currency"]
+                        counterpart_line_values["amount_currency"] = (
+                            counterpart_line_values["line_currency"].round(
+                                counterpart_line_values["amount_currency"]
                                 - line_values["amount_currency"]
                             )
                         )
@@ -332,25 +338,44 @@ class AccountPayment(models.Model):
         """
         reversal_partials = self.env["account.partial.reconcile"]
         latest_direct_create_date = max(direct_partials.mapped("create_date"), default=False)
-        for matched_line in direct_matched_lines:
-            for partial in matched_line.matched_debit_ids + matched_line.matched_credit_ids:
-                if (
-                    latest_direct_create_date
-                    and partial.create_date
-                    and partial.create_date > latest_direct_create_date
-                ):
-                    continue
-                counterpart_line = (
-                    partial.debit_move_id
-                    if partial.debit_move_id != matched_line
-                    else partial.credit_move_id
-                )
-                if self._is_payment_voucher_invoice_reversal_pair(
-                    matched_line.move_id,
-                    counterpart_line.move_id,
-                ):
-                    reversal_partials |= partial
+        pending_lines = direct_matched_lines
+        visited_lines = self.env["account.move.line"]
+        while pending_lines:
+            matched_lines = pending_lines - visited_lines
+            if not matched_lines:
+                break
+            visited_lines |= matched_lines
+            pending_lines = self.env["account.move.line"]
+            for matched_line in matched_lines:
+                for partial in matched_line.matched_debit_ids + matched_line.matched_credit_ids:
+                    if (
+                        latest_direct_create_date
+                        and partial.create_date
+                        and partial.create_date > latest_direct_create_date
+                    ):
+                        continue
+                    counterpart_line = (
+                        partial.debit_move_id
+                        if partial.debit_move_id != matched_line
+                        else partial.credit_move_id
+                    )
+                    if self._is_payment_voucher_invoice_reversal_pair(
+                        matched_line.move_id,
+                        counterpart_line.move_id,
+                    ):
+                        reversal_partials |= partial
+                        pending_lines |= counterpart_line
         return reversal_partials
+
+    def _get_payment_voucher_line_values_for_move(self, line_values_by_key, move_id):
+        return next(
+            (
+                line_values
+                for (_, line_move_id), line_values in line_values_by_key.items()
+                if line_move_id == move_id
+            ),
+            False,
+        )
 
     def _get_payment_voucher_invoice_move_types(self):
         return ("out_invoice", "out_refund", "in_invoice", "in_refund")
