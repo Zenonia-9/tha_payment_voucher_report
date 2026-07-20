@@ -128,7 +128,40 @@ class AccountPayment(models.Model):
                     partial=partial,
                 )
                 line_values["row_type"] = "reconcile"
-                line_values["include_in_payment_total"] = False
+                direct_line = (
+                    (partial.debit_move_id | partial.credit_move_id) - reconcile_line
+                ).filtered(lambda line: line in direct_matched_lines)[:1]
+                direct_line_values = direct_line and line_values_by_key.get(
+                    ("invoice", direct_line.move_id.id)
+                )
+                if (
+                    direct_line_values
+                    and self._is_payment_voucher_invoice_reversal_pair(
+                        direct_line.move_id,
+                        reconcile_line.move_id,
+                    )
+                ):
+                    # A refund/credit note reconciled in the same batch reduces the
+                    # document balance before the payment is applied. Show that
+                    # reduction explicitly while increasing the paid document row,
+                    # so the voucher rows still net to the actual payment amount.
+                    direct_line_values["amount_company"] = company_currency.round(
+                        direct_line_values["amount_company"]
+                        - line_values["amount_company"]
+                    )
+                    if (
+                        direct_line_values["line_currency"]
+                        == line_values["line_currency"]
+                    ):
+                        direct_line_values["amount_currency"] = (
+                            direct_line_values["line_currency"].round(
+                                direct_line_values["amount_currency"]
+                                - line_values["amount_currency"]
+                            )
+                        )
+                    line_values["include_in_payment_total"] = True
+                else:
+                    line_values["include_in_payment_total"] = False
                 line_key = (line_values["row_type"], reconcile_line.move_id.id)
                 existing_values = line_values_by_key.get(line_key)
                 if existing_values:
@@ -283,6 +316,12 @@ class AccountPayment(models.Model):
 
     def _get_payment_voucher_invoice_move_types(self):
         return ("out_invoice", "out_refund", "in_invoice", "in_refund")
+
+    def _is_payment_voucher_invoice_reversal_pair(self, first_move, second_move):
+        return {first_move.move_type, second_move.move_type} in (
+            {"out_invoice", "out_refund"},
+            {"in_invoice", "in_refund"},
+        )
 
     def _merge_payment_voucher_references(self, left_reference, right_reference):
         references = []
