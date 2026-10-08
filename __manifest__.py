@@ -1,7 +1,7 @@
 {
     "name": "Payment Voucher Report",
     "summary": "Print vendor payment and customer receipt vouchers from payments",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Accounting",
     "author": "Thein Htoo Aung",
     "license": "LGPL-3",

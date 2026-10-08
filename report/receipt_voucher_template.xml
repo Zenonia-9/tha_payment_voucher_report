@@ -36,6 +36,22 @@
                             overflow-wrap: anywhere;
                         }
 
+                        .compact-table td.voucher-match-date,
+                        .compact-table th.voucher-match-date,
+                        .compact-table td.voucher-match-document,
+                        .compact-table th.voucher-match-document {
+                            white-space: nowrap !important;
+                            overflow-wrap: normal !important;
+                            word-break: keep-all !important;
+                        }
+
+                        .compact-table td.voucher-match-reference,
+                        .compact-table th.voucher-match-reference {
+                            white-space: normal !important;
+                            overflow-wrap: anywhere !important;
+                            word-break: normal !important;
+                        }
+
                         .compact-table .amount-cell {
                             white-space: nowrap;
                         }
@@ -341,6 +357,22 @@
                             vertical-align: middle;
                             padding: 2px 3px !important;
                             overflow-wrap: anywhere;
+                        }
+
+                        .compact-table td.voucher-match-date,
+                        .compact-table th.voucher-match-date,
+                        .compact-table td.voucher-match-document,
+                        .compact-table th.voucher-match-document {
+                            white-space: nowrap !important;
+                            overflow-wrap: normal !important;
+                            word-break: keep-all !important;
+                        }
+
+                        .compact-table td.voucher-match-reference,
+                        .compact-table th.voucher-match-reference {
+                            white-space: normal !important;
+                            overflow-wrap: anywhere !important;
+                            word-break: normal !important;
                         }
 
                         .compact-table .amount-cell {

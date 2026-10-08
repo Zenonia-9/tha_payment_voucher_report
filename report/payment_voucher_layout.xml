@@ -228,9 +228,9 @@
                 <thead>
                     <tr>
                         <th style="width: 8mm;">No</th>
-                        <th>Date</th>
-                        <th>Document</th>
-                        <th>Reference</th>
+                        <th class="voucher-match-date">Date</th>
+                        <th class="voucher-match-document">Document</th>
+                        <th class="voucher-match-reference">Reference</th>
                         <th t-if="values.get('show_pc_cc')" style="width: 15mm;">PC/CC</th>
                         <th t-if="values.get('show_foreign_currency')" class="text-end">
                             Amount in Currency
@@ -241,11 +241,11 @@
                 <tbody>
                     <tr t-foreach="values.get('lines')" t-as="line">
                         <td><span t-esc="line_index + 1"/></td>
-                        <td>
+                        <td class="voucher-match-date">
                             <span t-esc="line.get('date') and line.get('date').strftime('%d-%b-%Y') or ''"/>
                         </td>
-                        <td><span t-esc="line.get('document_number')"/></td>
-                        <td><span t-esc="line.get('reference')"/></td>
+                        <td class="voucher-match-document"><span t-esc="line.get('document_number')"/></td>
+                        <td class="voucher-match-reference"><span t-esc="line.get('reference')"/></td>
                         <td t-if="values.get('show_pc_cc')"><span t-esc="line.get('pc_cc')"/></td>
                         <td t-if="values.get('show_foreign_currency')" class="text-end amount-cell">
                             <span t-if="line.get('line_currency') != values.get('company_currency')"
